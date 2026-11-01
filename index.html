@@ -1,0 +1,1888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Šnops">
+<meta name="theme-color" content="#671e22">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { overscroll-behavior: none; }
+body { margin: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+*, *::before, *::after { box-sizing: border-box; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Šnops</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cabin:wght@400;600;700&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: a gostilna table seen from your chair. Computer's hand far side, stock and trick mid-table,
+   score tallied in pencil on a beer mat, your hand nearest. One deliberate look, so no dark/light variants. */
+:root {
+  color-scheme: dark;
+  --cloth: #671e22;
+  --cloth-deep: #4c1418;
+  --pattern:
+    repeating-linear-gradient(0deg, rgba(255, 236, 214, .055) 0 26px, transparent 26px 52px),
+    repeating-linear-gradient(90deg, rgba(255, 236, 214, .055) 0 26px, transparent 26px 52px);
+  --pattern-size: auto;
+  --scrim: rgba(40, 10, 12, .72);
+  --scrim-soft: rgba(40, 10, 12, .6);
+  --cream: #f7eddc;
+  --cream-dim: #d9c3ad;
+  --paper: #fbf5e9;
+  --ink: #241a17;
+  --ink-soft: #6f5f55;
+  --heart: #b5211b;
+  --mustard: #e2ab2f;
+  --mat: #e6d2ac;
+  --display: "Abril Fatface", Georgia, serif;
+  --body: "Cabin", "Segoe UI", system-ui, sans-serif;
+  --hand: "Kalam", "Segoe Print", cursive;
+  --cw: clamp(56px, 16.5vw, 112px);
+  --ch: calc(var(--cw) * 1.464);
+}
+:root[data-bg="red"], [data-swatch="red"] {
+  --cloth: #671e22;
+  --cloth-deep: #4c1418;
+  --pattern:
+    repeating-linear-gradient(0deg, rgba(255, 236, 214, .055) 0 26px, transparent 26px 52px),
+    repeating-linear-gradient(90deg, rgba(255, 236, 214, .055) 0 26px, transparent 26px 52px);
+  --pattern-size: auto;
+}
+:root[data-bg="green"], [data-swatch="green"] {
+  --cloth: #1f5a3d;
+  --cloth-deep: #123d28;
+  --pattern: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.2px);
+  --pattern-size: 4px 4px;
+}
+:root[data-bg="green"] { --scrim: rgba(6, 28, 18, .72); --scrim-soft: rgba(6, 28, 18, .6); }
+:root[data-bg="blue"], [data-swatch="blue"] {
+  --cloth: #1f4068;
+  --cloth-deep: #142c4a;
+  --pattern:
+    repeating-linear-gradient(0deg, rgba(225, 238, 255, .055) 0 26px, transparent 26px 52px),
+    repeating-linear-gradient(90deg, rgba(225, 238, 255, .055) 0 26px, transparent 26px 52px);
+  --pattern-size: auto;
+}
+:root[data-bg="blue"] { --scrim: rgba(8, 18, 34, .72); --scrim-soft: rgba(8, 18, 34, .6); }
+:root[data-bg="wood"], [data-swatch="wood"] {
+  --cloth: #4a2c18;
+  --cloth-deep: #2f1b0d;
+  --pattern:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .28) 0 2px, transparent 2px 130px),
+    repeating-linear-gradient(90deg, rgba(255, 215, 165, .035) 0 5px, transparent 5px 17px, rgba(0, 0, 0, .05) 17px 21px, transparent 21px 31px);
+  --pattern-size: auto;
+}
+:root[data-bg="wood"] { --scrim: rgba(24, 12, 4, .72); --scrim-soft: rgba(24, 12, 4, .6); }
+html, body { min-height: 100%; }
+body {
+  font-family: var(--body);
+  font-size: 16px;
+  color: var(--cream);
+  background-color: var(--cloth);
+  background-image: var(--pattern);
+  background-size: var(--pattern-size);
+}
+.app {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+header { position: relative; display: flex; align-items: center; }
+.settings-btn { font-size: .875rem; padding: 4px 10px; min-height: 34px; }
+.settings-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 3;
+  width: min(300px, 100%);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+.settings-label { font-weight: 700; font-size: .875rem; }
+.settings-label:not(:first-child) { margin-top: 6px; }
+.settings-options { display: flex; flex-direction: column; gap: 6px; }
+.settings-swatches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.settings-names { display: flex; flex-wrap: wrap; gap: 6px; }
+.settings-names .option { padding: 5px 9px; }
+.option {
+  font: 600 .875rem/1.25 var(--body);
+  color: var(--ink);
+  background: transparent;
+  border: 1.5px solid #b9a78f;
+  border-radius: 4px;
+  padding: 7px 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.option:hover { background: var(--mat); }
+.option[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.rules-option { margin-top: 6px; text-align: center; }
+.rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; font-size: .9375rem; line-height: 1.4; }
+.rules li { display: flex; flex-direction: column; gap: 1px; }
+.swatch-option { display: flex; flex-direction: column; gap: 5px; padding: 5px; }
+.swatch { display: block; height: 34px; border-radius: 2px; background-color: var(--cloth); background-image: var(--pattern); background-size: var(--pattern-size); }
+.settings-hint { font-size: .8125rem; line-height: 1.3; color: var(--ink-soft); }
+
+.row-label { font-size: .8125rem; color: var(--cream-dim); font-variant-numeric: tabular-nums; }
+.opp { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.fan { display: flex; justify-content: center; gap: 6px; }
+.fan.backs { --cw: clamp(38px, 10vw, 68px); --ch: calc(var(--cw) * 1.464); gap: 0; min-height: var(--ch); }
+.fan.backs .card + .card { margin-left: calc(var(--cw) * -.45); }
+
+.mid { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: calc(var(--ch) + 40px); }
+.stock-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.stock { position: relative; width: calc(var(--cw) * 1.5); height: var(--ch); }
+.stock .card { position: absolute; top: 0; }
+.stock .under { left: 0; transform: rotate(-3deg); }
+.stock .pile { left: calc(var(--cw) * .5); box-shadow: 2px 2px 0 var(--paper), 3px 3px 0 rgba(0,0,0,.35), 5px 5px 8px rgba(0,0,0,.35); }
+.stock-note { font-size: .8125rem; color: var(--cream-dim); text-align: center; line-height: 1.25; }
+.stock-note b { color: var(--cream); font-weight: 700; }
+
+.trick { display: flex; justify-content: center; align-items: center; min-height: calc(var(--ch) + 18px); }
+.trick .card { animation: land .22s ease-out; }
+.trick .card:nth-child(1) { transform: rotate(-5deg) translateY(-5px); }
+.trick .card:nth-child(2) { transform: rotate(6deg) translateY(5px); margin-left: calc(var(--cw) * -.32); }
+@keyframes land { from { opacity: 0; scale: 1.12; } to { opacity: 1; scale: 1; } }
+
+.mat {
+  width: clamp(92px, 21vw, 124px);
+  padding: 8px 10px 10px;
+  background: var(--mat);
+  color: #38291c;
+  border-radius: 10px;
+  transform: rotate(2.5deg);
+  box-shadow: 0 3px 8px rgba(0,0,0,.4);
+  font-family: var(--hand);
+  outline: 2px solid rgba(90, 60, 30, .45);
+  outline-offset: -5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mat .goal { font-size: .75rem; line-height: 1.1; text-align: center; }
+.mat .who { font-size: .9375rem; font-weight: 700; line-height: 1.1; }
+.mat svg { display: block; height: 22px; width: 100%; color: #38291c; }
+
+.status {
+  background: var(--paper);
+  color: var(--ink);
+  padding: 8px 12px;
+  border-radius: 3px;
+  min-height: 3.1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.3;
+  box-shadow: 0 2px 5px rgba(0,0,0,.3);
+}
+.status .note { color: var(--ink-soft); font-size: .875rem; }
+.status .prompt { font-weight: 600; }
+.status.alert { background: var(--mustard); }
+.status.alert .note { color: var(--ink); font-weight: 700; font-size: 1rem; }
+
+.announce { position: fixed; inset: 0; z-index: 4; display: grid; place-items: center; padding: 16px; background: var(--scrim-soft); cursor: pointer; }
+.announce-box {
+  --cw: clamp(84px, 26vw, 132px);
+  --ch: calc(var(--cw) * 1.464);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  padding: 18px 24px 20px;
+  background: var(--mustard);
+  color: var(--ink);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  text-align: center;
+  animation: announce-in .3s ease-out;
+}
+.announce-title { font: 400 2.25rem/1 var(--display); }
+.announce-cards { display: flex; gap: 8px; }
+.announce-text { font-weight: 700; font-size: 1.0625rem; line-height: 1.3; text-wrap: balance; }
+@keyframes announce-in { from { opacity: 0; scale: .9; } to { opacity: 1; scale: 1; } }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 40px; }
+.btn {
+  font: 600 .9375rem var(--body);
+  color: var(--cream);
+  background: var(--cloth-deep);
+  border: 1.5px solid var(--cream-dim);
+  border-radius: 4px;
+  padding: 8px 12px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: var(--cream); color: var(--ink); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.claim { background: var(--mustard); border-color: var(--mustard); color: var(--ink); }
+.btn.claim:hover:not(:disabled) { background: #f0c04f; }
+.btn.claim.ready { animation: nudge 1.1s ease-in-out infinite; }
+@keyframes nudge { 50% { box-shadow: 0 0 0 5px rgba(226, 171, 47, .35); } }
+:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+
+.card {
+  width: var(--cw);
+  height: var(--ch);
+  flex: none;
+  padding: 0;
+  position: relative;
+  display: block;
+  background: var(--mat);
+  border: 0;
+  border-radius: calc(var(--cw) * .06);
+  box-shadow: 0 2px 5px rgba(0,0,0,.4);
+}
+.card img { display: block; width: 100%; height: 100%; border-radius: inherit; }
+button.card.is-trump { box-shadow: 0 0 0 2px var(--mustard), 0 2px 5px rgba(0,0,0,.4); }
+button.card.is-new { z-index: 3; box-shadow: 0 0 0 3px var(--paper), 0 0 16px 5px var(--mustard); }
+.new-tag {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 8px;
+  border-radius: 3px;
+  background: var(--mustard);
+  color: var(--ink);
+  font: 700 .75rem/1.4 var(--body);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+}
+button.card { cursor: pointer; transition: filter .18s ease; }
+@media (hover: hover) {
+  button.card:hover:not(:disabled) { filter: brightness(1.07) drop-shadow(0 0 7px rgba(255, 236, 190, .6)); }
+}
+button.card:disabled { cursor: default; }
+button.card.illegal { filter: brightness(.62); }
+
+.me { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.fan.hand { min-height: var(--ch); padding-top: 8px; }
+
+.opp-grid, .me-grid { display: grid; width: 100%; align-items: center; column-gap: 8px; }
+.opp-grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.opp-grid .fan { grid-column: 2; }
+.opp-grid .trick-pile { grid-column: 3; }
+.me-grid { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "hand hand" "info pile"; row-gap: 4px; }
+.me-grid .fan { grid-area: hand; }
+.me-grid .trick-pile { grid-area: pile; }
+.me-grid .score-tag { grid-area: info; justify-self: center; }
+.score-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: min(230px, 100%);
+  padding: 7px 14px 8px;
+  background: var(--mat);
+  color: #38291c;
+  font-family: var(--hand);
+  border-radius: 8px;
+  outline: 2px solid rgba(90, 60, 30, .45);
+  outline-offset: -4px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .4);
+  transform: rotate(-1deg);
+}
+.score-num { font-weight: 700; font-size: 2.125rem; line-height: 1; font-variant-numeric: tabular-nums; min-width: 1.15em; text-align: center; }
+.score-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.score-top { display: flex; justify-content: space-between; gap: 12px; font-size: .9375rem; line-height: 1.15; white-space: nowrap; }
+.score-bar { position: relative; height: 7px; background: rgba(56, 41, 28, .18); border-radius: 4px; }
+.score-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--cloth); border-radius: 4px; transition: width .45s ease-out; }
+.score-mark { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; background: #38291c; opacity: .6; }
+.score-pending { font-size: .8125rem; line-height: 1.1; }
+.score-tag.reached .score-num { color: var(--heart); }
+.score-tag.reached .score-fill { background: var(--heart); }
+.opp-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.opp-marks { display: flex; gap: 6px; }
+.opp-marks:empty { display: none; }
+.marriage-chip {
+  padding: 2px 9px 3px;
+  background: var(--mustard);
+  color: var(--ink);
+  font: 700 .9375rem/1.3 var(--body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .35);
+  transform: rotate(-1.5deg);
+}
+#oppInfo {
+  padding: 2px 10px 3px;
+  background: var(--mat);
+  color: #38291c;
+  font-family: var(--hand);
+  font-size: .9375rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .35);
+  transform: rotate(.8deg);
+}
+@media (min-width: 880px) {
+  .me-grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: ". hand pile" ". info ."; }
+}
+
+.trick-pile {
+  --cw: clamp(38px, 8vw, 58px);
+  --ch: calc(var(--cw) * 1.464);
+  position: relative;
+  display: block;
+  justify-self: end;
+  width: calc(var(--cw) * 1.7);
+  height: calc(var(--ch) * 1.25);
+  padding: 0;
+  background: none;
+  border: 0;
+  transition: filter .18s ease;
+}
+.trick-pile.empty { visibility: hidden; }
+.trick-pile .card { position: absolute; left: 50%; top: 50%; margin: calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2); }
+button.trick-pile:not(:disabled) { cursor: pointer; }
+@media (hover: hover) {
+  button.trick-pile:hover:not(:disabled) { filter: brightness(1.07) drop-shadow(0 0 7px rgba(255, 236, 190, .6)); }
+}
+
+.victory { position: fixed; inset: 0; z-index: 6; display: grid; place-items: center; padding: 16px; cursor: pointer; transition: opacity .5s ease; }
+.victory.ending { opacity: 0; pointer-events: none; }
+.victory canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.victory-text {
+  position: relative;
+  max-width: 100%;
+  padding: 18px 28px;
+  background: var(--scrim);
+  border-radius: 6px;
+  color: var(--cream);
+  text-align: center;
+  animation: victory-in .6s cubic-bezier(.2, 1.4, .4, 1);
+}
+.victory-title { font: 400 clamp(2rem, 8vw, 4.5rem)/1.05 var(--display); text-wrap: balance; }
+.victory-score { margin-top: 8px; font: 700 clamp(1.5rem, 5vw, 2.5rem)/1 var(--hand); color: var(--mustard); }
+.victory-hint { margin-top: 8px; font-size: .875rem; color: var(--cream-dim); }
+.victory.defeat {
+  background: rgba(8, 10, 16, .62);
+  -webkit-backdrop-filter: grayscale(1) brightness(.8);
+  backdrop-filter: grayscale(1) brightness(.8);
+  animation: defeat-fade 1.6s ease-out;
+}
+.defeat .victory-text { background: rgba(10, 12, 18, .74); animation: defeat-text 2s ease-out; }
+.defeat .victory-title { font-size: clamp(1.75rem, 6.5vw, 3.5rem); }
+.defeat .victory-score { color: var(--cream-dim); }
+.victory-sad { margin-top: 8px; font: 400 clamp(1.125rem, 3.5vw, 1.5rem)/1.2 var(--hand); color: var(--cream); }
+@keyframes defeat-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes defeat-text { 0%, 30% { opacity: 0; transform: translateY(-18px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes victory-in { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+
+.spread { position: fixed; inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.spread-cards { --ch: calc(var(--cw) * 1.464); display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; }
+.spread-pair { display: flex; gap: 6px; }
+.spread .card { box-shadow: 0 6px 18px rgba(0, 0, 0, .6); }
+
+.scrim { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; padding: 16px; z-index: 5; }
+.result { background: var(--paper); color: var(--ink); max-width: 380px; width: 100%; padding: 20px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.5); display: flex; flex-direction: column; gap: 10px; }
+.result h2 { font: 400 1.625rem/1.15 var(--display); margin: 0; text-wrap: balance; }
+.result p { margin: 0; line-height: 1.4; }
+.result .tally { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: .9375rem; }
+.result .gain { font-weight: 700; }
+.result .btn { background: var(--cloth); border-color: var(--cloth); align-self: flex-start; }
+.result .btn:hover:not(:disabled) { background: var(--cloth-deep); color: var(--cream); }
+
+.result.wide { max-width: 620px; max-height: 88vh; overflow-y: auto; }
+.won-list { --cw: 64px; --ch: calc(var(--cw) * 1.464); display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 12px; }
+.won-trick { display: flex; flex-direction: column; gap: 4px; }
+.won-pair { display: flex; gap: 4px; }
+.won-label { font-size: .8125rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.result .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink-soft); font-size: .875rem; padding: 4px 10px; min-height: 36px; align-self: auto; }
+.result .btn.ghost:hover:not(:disabled) { background: var(--mat); color: var(--ink); }
+.result .btn.ghost[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.log li { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 8px; padding: 7px 0; border-top: 1px solid rgba(36, 26, 23, .15); font-size: .9375rem; line-height: 1.4; }
+.log-label { font-weight: 700; }
+.log-card { font-weight: 700; white-space: nowrap; }
+.log-card.red { color: var(--heart); }
+
+@media (prefers-reduced-motion: reduce) {
+  .trick .card, .btn.claim.ready, .announce-box, .victory-text, .victory.defeat { animation: none; }
+  button.card { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <button class="btn settings-btn" id="settingsBtn" aria-expanded="false" aria-controls="settingsPanel"></button>
+    <div class="settings-panel" id="settingsPanel" hidden></div>
+  </header>
+  <section class="opp" aria-label="Computer">
+    <div class="opp-grid">
+      <div class="fan backs" id="oppHand"></div>
+      <button class="trick-pile" id="cpuPile" data-act="cpuTricks"></button>
+    </div>
+    <div class="opp-info">
+      <div class="row-label" id="oppInfo"></div>
+      <div class="opp-marks" id="oppMarks"></div>
+    </div>
+  </section>
+  <section class="mid">
+    <div class="stock-col" id="stock"></div>
+    <div class="trick" id="trick" aria-label="Cards on the table"></div>
+    <div class="mat" id="mat" aria-label="Game points"></div>
+  </section>
+  <div class="status" id="status" aria-live="polite"></div>
+  <div class="actions" id="actions"></div>
+  <section class="me" aria-label="Your hand">
+    <div class="me-grid">
+      <div class="fan hand" id="hand"></div>
+      <button class="trick-pile" id="myPile" data-act="tricks" title="See your tricks"></button>
+      <div class="score-tag" id="meInfo" role="status">
+        <span class="score-num" id="scoreNum"></span>
+        <div class="score-body">
+          <div class="score-top"><span id="scoreUnit"></span><span id="scoreTricks"></span></div>
+          <div class="score-bar" id="scoreBar"><span class="score-fill" id="scoreFill"></span><span class="score-mark"></span></div>
+          <div class="score-pending" id="scorePending" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="announce"></div>
+<div id="over"></div>
+<div id="tricksView"></div>
+<div id="spread"></div>
+<div id="rulesView"></div>
+<div id="victory"></div>
+
+<script>
+const YOU = 0, CPU = 1;
+const SUITS = ['H', 'D', 'C', 'S'];
+const RANKS = ['A', 'T', 'K', 'Q', 'J'];
+const VAL = { A: 11, T: 10, K: 4, Q: 3, J: 2 };
+const GLYPH = { H: '♥︎', D: '♦︎', C: '♣︎', S: '♠︎' };
+const GOAL = 7;
+
+const suit = c => c[0];
+const rank = c => c[1];
+const val = c => VAL[c[1]];
+const short = c => L().cardNom(c);
+const $ = id => document.getElementById(id);
+
+let S = null;
+let mode = 'normal';
+let timer = null;
+let lang = 'en';
+let background = 'red';
+let cpuName = 'default';
+try {
+  cpuName = localStorage.getItem('snops-cpu') || cpuName;
+  mode = localStorage.getItem('snops-mode') || (localStorage.getItem('snops-count') === 'off' ? 'hard' : mode);
+  lang = localStorage.getItem('snops-lang') || lang;
+  background = localStorage.getItem('snops-bg') || background;
+} catch (e) {}
+
+const MODES = ['easy', 'normal', 'hard'];
+const BACKGROUNDS = ['red', 'green', 'blue', 'wood'];
+const LANGUAGES = [['en', 'English'], ['st', 'Štajerska slovenščina']];
+
+const CPU_NAMES = {
+  joza: ['Joža', 'Jože', 'Jožetov'],
+  tone: ['Tone', 'Toneta', 'Tonetov'],
+  franci: ['Franci', 'Francija', 'Francijev'],
+  boris: ['Boris', 'Borisa', 'Borisov'],
+  branko: ['Branko', 'Brankota', 'Brankotov'],
+  marjan: ['Marjan', 'Marjana', 'Marjanov']
+};
+const cpuNamed = () => CPU_NAMES[cpuName];
+const enName = () => cpuNamed() ? cpuNamed()[0] : 'Computer';
+const enThe = () => cpuNamed() ? cpuNamed()[0] : 'The computer';
+const enLower = () => cpuNamed() ? cpuNamed()[0] : 'computer';
+const enGen = () => cpuNamed() ? `${cpuNamed()[0]}'s` : "Computer's";
+const enGenLow = () => cpuNamed() ? `${cpuNamed()[0]}'s` : "the computer's";
+const stName = () => cpuNamed() ? cpuNamed()[0] : 'Računalnik';
+const stLower = () => cpuNamed() ? cpuNamed()[0] : 'računalnik';
+const stGen = () => cpuNamed() ? cpuNamed()[1] : 'računalnika';
+const stTricks = () => cpuNamed() ? `${cpuNamed()[2]}i štihi` : 'Štihi računalnika';
+const stSeeTricks = () => cpuNamed() ? `${cpuNamed()[2]}e štihe` : 'štihe računalnika';
+const enWho = p => p === YOU ? 'You' : `${enThe()}`;
+const stIs = (p, you, cpu) => p === YOU ? you : cpu;
+const stStihi = n => {
+  const m = n % 100;
+  return `${n} ${m === 1 ? 'štih' : m === 2 ? 'štiha' : m === 3 || m === 4 ? 'štihi' : 'štihov'}`;
+};
+
+const EN_RANK = { A: 'A', T: '10', K: 'K', Q: 'Q', J: 'J' };
+const EN_RANK_NAME = { A: 'Ace', T: '10', K: 'King', Q: 'Queen', J: 'Jack' };
+const EN_SUIT = { H: 'hearts', D: 'diamonds', C: 'clubs', S: 'spades' };
+
+/* Štajerska card names change with the sentence: "pikova baba" but "Dobiš pikovo babo". */
+const ST_SUIT = { H: 'herc', D: 'kara', C: 'križ', S: 'pik' };
+const ST_SUIT_ADJ = { H: 'herčov', D: 'karin', C: 'križov', S: 'pikov' };
+const ST_RANK = {
+  A: { fem: false, nom: 'as', acc: 'asa' },
+  T: { fem: true, nom: 'desetka', acc: 'desetko' },
+  K: { fem: false, nom: 'kralj', acc: 'krala' },
+  Q: { fem: true, nom: 'baba', acc: 'babo' },
+  J: { fem: false, nom: 'pubec', acc: 'pubeca' }
+};
+const stNom = c => {
+  const r = ST_RANK[rank(c)];
+  return `${ST_SUIT_ADJ[suit(c)]}${r.fem ? 'a' : ''} ${r.nom}`;
+};
+const stAcc = c => {
+  const r = ST_RANK[rank(c)];
+  return `${ST_SUIT_ADJ[suit(c)]}${r.fem ? 'o' : 'ega'} ${r.acc}`;
+};
+const stCap = s => s[0].toUpperCase() + s.slice(1);
+
+const STRINGS = {
+  en: {
+    cardNom: c => EN_RANK[rank(c)] + GLYPH[suit(c)],
+    cardAcc: c => EN_RANK[rank(c)] + GLYPH[suit(c)],
+    cardAlt: c => `${EN_RANK_NAME[rank(c)]} of ${EN_SUIT[suit(c)]}, ${val(c)} points`,
+    settings: 'Settings',
+    language: 'Language',
+    background: 'Background',
+    modeLabel: 'Mode',
+    modeName: { easy: 'Easy', normal: 'Normal', hard: 'Hard' },
+    modeHint: m => ({
+      easy: `You see your points and ${enGenLow()} points. Press ${enGenLow()} pile to see the tricks.`,
+      normal: `You see your points and ${enGenLow()} 20s and 40s. ${enGen()} points and tricks stay hidden.`,
+      hard: 'No points, trick counts or marks. Keep it all in your head.'
+    })[m],
+    oppInfoEasy: (pts, pending, n) => `${enName()}: ${pts} points${pending ? ` (+${pending})` : ''}, ${n} ${n === 1 ? 'trick' : 'tricks'}`,
+    oppInfoHard: () => enName(),
+    get pileTitleCpu() { return `See ${enGenLow()} tricks`; },
+    cpuNameLabel: "Computer's name",
+    cpuDefault: 'Computer',
+    rulesTitle: 'Rules',
+    rules: [
+      ['Goal', 'Reach 66 points in a hand before your opponent, then press Claim 66. Ace 11, 10 is 10, king 4, queen 3, jack 2.'],
+      ['While the stock is open', 'You can play any card. After each trick the winner draws first, then the loser.'],
+      ['When the stock is empty or closed', 'Follow suit and beat the card if you can. With no card of that suit, you must trump if you can.'],
+      ['Marriage', 'On your lead, declare a king and queen of one suit and lead one of them. It is worth 20, or 40 in trumps, and counts once you have won a trick. You can cancel it until you play the card.'],
+      ['Swap', 'On your lead, while the stock is open, you can trade the trump jack for the face-up trump.'],
+      ['Close', 'On your lead, you can close the stock. If you then do not reach 66, your opponent wins the hand, even without 66, and scores 2 game points, or 3 if they had no tricks when you closed.'],
+      ['Claiming', 'You score 1 game point if your opponent has 33 or more, 2 if under 33, and 3 if they have no tricks. A wrong claim gives your opponent 2, or 3 if they have no tricks.'],
+      ['No claim', 'If every trick is played and nobody claimed, the last trick wins the hand for 1 game point. A last-trick winner with 66 or more scores as if they had claimed.'],
+      ['Match', 'The first player to 7 game points wins.'],
+      ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard mode. At a real table you usually cannot look back. Your trumps have a gold edge.'],
+      ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Everything is revealed when the hand ends.']
+    ],
+    bg: { red: 'Red check', green: 'Green felt', blue: 'Blue check', wood: 'Dark wood' },
+    oppInfo: n => `${enName()}: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
+    meInfo: (pts, pending, n) => `You: ${pts} points${pending ? ` (+${pending} after your first trick)` : ''}, ${n} ${n === 1 ? 'trick' : 'tricks'}`,
+    scoreUnit: 'of 66 points',
+    scoreHint: 'Keep count in your head',
+    scoreTricks: n => `${n} ${n === 1 ? 'trick' : 'tricks'}`,
+    scorePending: n => `+${n} after your first trick`,
+    trump: g => `Trump ${g}`,
+    stockLeft: n => `${n} left`,
+    stockEmptyLabel: 'Stock empty',
+    stockClosed: p => p === YOU ? 'You closed it' : `${enName()} closed it`,
+    matGoal: n => `first to ${n}`,
+    matYou: 'You',
+    get matCpu() { return cpuNamed() ? cpuNamed()[0] : 'Comp'; },
+    matAria: (a, b, n) => `Game points. You ${a}, ${enLower()} ${b}. First to ${n}.`,
+    pileAria: (p, n) => `${p === YOU ? 'Your' : `${enGen()}`} trick pile: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
+    pileTitle: 'See your tricks',
+    spreadAria: 'Your tricks',
+    handOver: 'Hand over.',
+    get cpuPlaying() { return `${enName()} is playing…`; },
+    replyStrict: c => `Reply to ${short(c)}. Follow suit and beat it if you can, otherwise trump.`,
+    replyFree: c => `Reply to ${short(c)}. You can play any card.`,
+    leadDeclared: 'Lead your king or queen, or cancel.',
+    claimHint: n => `You have ${n}. Claim it to win the hand.`,
+    yourLead: 'Your lead.',
+    declareBtn: (v, g) => `Declare ${v} in ${g}`,
+    cancelBtn: (v, g) => `Cancel ${v} in ${g}`,
+    swapBtn: c => `Swap jack for ${short(c)}`,
+    closeStockBtn: 'Close stock',
+    claimBtn: 'Claim 66',
+    wonTrick: g => mode === 'hard' ? 'You won the trick.' : `You won the trick (+${g}).`,
+    cpuWonTrick: () => `${enName()} won the trick.`,
+    drew: c => `You drew ${short(c)}.`,
+    stockEmpty: () => 'The stock is empty, so strict rules apply.',
+    swapped: (p, c) => `${p === YOU ? 'You' : `${enName()}`} swapped the trump jack for ${short(c)}.`,
+    closed: p => p === YOU ? 'You closed the stock. Strict rules apply and you need 66.' : `${enName()} closed the stock.`,
+    declared: (p, v, g) => `${p === YOU ? 'You' : `${enName()}`} declared ${v} in ${g}.`,
+    led: (p, c) => `${p === YOU ? 'You' : `${enName()}`} led ${short(c)}.`,
+    ledHolds: (p, c, other) => `${p === YOU ? 'You' : `${enName()}`} led ${short(c)} and still holds ${short(other)}.`,
+    announceTitle: () => 'Marriage!',
+    announceText: (v, s, isTrump) => `${enName()} declares ${v} in ${GLYPH[s]}${isTrump ? ', the trump suit' : ''}`,
+    claimed: (p, n) => `${enWho(p)} claimed ${n} points.`,
+    closedMade: (p, n) => `${enWho(p)} closed and made ${n} points.`,
+    lastTrick: (p, n) => `${enWho(p)} took the last trick with ${n} points.`,
+    loserNoTricks: p => `${enWho(p)} won no tricks.`,
+    loserUnder33: p => `${enWho(p)} had under 33 points.`,
+    loserOver33: p => `${enWho(p)} had 33 or more points.`,
+    wrongClaim: (p, n) => `${enWho(p)} claimed 66 with only ${n} points.`,
+    closeFailed: p => `${enWho(p)} closed the stock and did not reach 66 first.`,
+    noClaim: () => 'Nobody claimed 66, so the last trick wins.',
+    forgot: (p, n) => `${enWho(p)} had ${n} but never claimed.`,
+    handWin: p => p === YOU ? 'You win the hand' : `${enThe()} wins the hand`,
+    matchWin: p => p === YOU ? 'You win the match' : `${enThe()} wins the match`,
+    get defeatTitle() { return `${enThe()} won the match`; },
+    defeatSad: 'Better luck next time…',
+    victoryTitle: 'You won the match!',
+    victoryHint: 'Click to continue',
+    gain: (p, n) => `${p === YOU ? 'You score' : `${enName()} scores`} ${n} game ${n === 1 ? 'point' : 'points'}.`,
+    tallyYou: 'Your points this hand',
+    get tallyCpu() { return `${enGen()} points this hand`; },
+    get tallyMatch() { return `Match score, you to ${enLower()}`; },
+    get viewTitle() { return { me: 'My tricks', cpu: `${enGen()} tricks`, log: 'Move history' }; },
+    nextHand: 'Next hand',
+    newMatch: 'New match',
+    newMatchConfirm: 'Press again to start over',
+    closeBtn: 'Close',
+    noTricks: p => `${enWho(p)} won no tricks.`,
+    cardPoints: (n, m) => `Card points: ${n}${m > 0 ? `, plus ${m} from marriages` : ''}.`,
+    trickLabel: n => `Trick ${n}`,
+    trickPoints: (n, v) => `Trick ${n}: ${v} points`,
+    logDealLabel: 'Deal',
+    logSwapLabel: 'Swap',
+    logCloseLabel: 'Close',
+    logMarriageLabel: () => 'Marriage',
+    logResultLabel: 'Result',
+    logDeal: (trump, first, you, cpu) => `Trump is ${trump}. ${first === YOU ? 'You lead' : `${enName()} leads`} first.<br>
+      Your cards: ${you}<br>
+      ${enGen()} cards: ${cpu}`,
+    logSwap: (p, c) => `${p === YOU ? 'You' : `${enName()}`} swapped the trump jack for ${c}.`,
+    logClose: p => `${p === YOU ? 'You' : `${enName()}`} closed the stock.`,
+    logMarriage: (p, v, g) => `${p === YOU ? 'You' : `${enName()}`} declared ${v} in ${g}.`,
+    logTrick: (lead, leadCard, reply, replyCard, w, gain, pts) => `${lead === YOU ? 'You' : `${enName()}`} led ${leadCard}. ${reply === YOU ? 'You' : `${enName()}`} played ${replyCard}.<br>
+      ${w === YOU ? 'You' : `${enName()}`} won ${gain} points. Score: you ${pts[YOU]}, ${enLower()} ${pts[CPU]}.`,
+    logDrew: (you, cpu) => `<br>You drew ${you}. ${enName()} drew ${cpu}.`
+  },
+  st: {
+    cardNom: stNom,
+    cardAcc: stAcc,
+    cardAlt: c => `${stNom(c)}, ${val(c)} točk`,
+    settings: 'Nastavitve',
+    language: 'Jezik',
+    background: 'Ozadje',
+    modeLabel: 'Težavnost',
+    modeName: { easy: 'Lahko', normal: 'Normalno', hard: 'Težko' },
+    modeHint: m => ({
+      easy: `Vidiš svoje točke in točke ${stGen()}. Pritisni kup ${stGen()} in vidiš štihe.`,
+      normal: `Vidiš svoje točke in 20 ali 40 ${stGen()}. Točke in štihi ${stGen()} so skriti.`,
+      hard: 'Brez točk, štihov in oznak. Vse štej v glavi.'
+    })[m],
+    oppInfoEasy: (pts, pending, n) => `${stName()}: ${pts} točk${pending ? ` (+${pending})` : ''}, ${stStihi(n)}`,
+    oppInfoHard: () => stName(),
+    get pileTitleCpu() { return `Poglej ${stSeeTricks()}`; },
+    cpuNameLabel: 'Ime računalnika',
+    cpuDefault: 'Računalnik',
+    rulesTitle: 'Pravila',
+    rules: [
+      ['Cilj', 'V partiji pridi do 66 točk pred nasprotnikom in pritisni Mam 66. As 11, desetka 10, kralj 4, baba 3, pubec 2.'],
+      ['Dokler so karte na kupu', 'Lahko daš katero koli karto. Kdor pobere štih, prvi vzame karto s kupa, potem še drugi.'],
+      ['Ko ni več kart ali je zaprto', 'Daj isto barvo ali višjo, če maš, drugače aduta.'],
+      ['20 in 40', 'Ko mečeš, pokaži krala in babo iste barve in vrži enega od njiju. To je 20 točk, v adutu 40. Točke štejejo, ko pobereš prvi štih. Dokler ne vržeš karte, lahko prekličeš.'],
+      ['Menjava', 'Ko mečeš in je kup še odprt, lahko adutovega pubeca zamenjaš za aduta na mizi.'],
+      ['Zapri', 'Ko mečeš, lahko zapreš kup. Če potem ne prideš do 66, dobi partijo nasprotnik, tudi če sam nima 66, in dobi 2 za igro, ali 3, če ob zapiranju ni mel štiha.'],
+      ['Mam 66', 'Dobiš 1 za igro, če ma nasprotnik 33 točk ali več, 2, če ma manj kot 33, in 3, če nima štiha. Če pritisneš brez 66 točk, dobi nasprotnik 2, ali 3, če nima štiha.'],
+      ['Brez prijave', 'Če se odigrajo vsi štihi in nihče ne reče 66, zmaga zadnji štih in dobi 1 za igro. Kdor pobere zadnji štih in ma 66 točk ali več, dobi toliko, kot da bi prijavil.'],
+      ['Igra', 'Zmaga, kdor prvi pride do 7 za igro.'],
+      ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko. Tvoji aduti majo zlat rob.'],
+      ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Na koncu partije se vidi vse.']
+    ],
+    bg: { red: 'Rdeč karo', green: 'Zeleno sukno', blue: 'Moder karo', wood: 'Temen les' },
+    oppInfo: n => `${stName()}: ${stStihi(n)}`,
+    meInfo: (pts, pending, n) => `Ti: ${pts} točk${pending ? ` (+${pending} po prvem štihu)` : ''}, ${stStihi(n)}`,
+    scoreUnit: 'od 66 točk',
+    scoreHint: 'Točke štej v glavi',
+    scoreTricks: n => stStihi(n),
+    scorePending: n => `+${n} po prvem štihu`,
+    trump: (g, s) => `Adut je ${ST_SUIT[s]} ${g}`,
+    stockLeft: n => `še ${n}`,
+    stockEmptyLabel: 'Ni več kart',
+    stockClosed: p => stIs(p, 'Zaprto (ti)', `Zaprto (${stLower()})`),
+    matGoal: n => `do ${n}`,
+    matYou: 'Ti',
+    get matCpu() { return cpuNamed() ? cpuNamed()[0] : 'Komp'; },
+    matAria: (a, b, n) => `Stanje v igri. Ti ${a}, ${stLower()} ${b}. Igra se do ${n}.`,
+    pileAria: (p, n) => `${stIs(p, 'Tvoji štihi', stTricks())}: ${stStihi(n)}`,
+    pileTitle: 'Poglej svoje štihe',
+    spreadAria: 'Tvoji štihi',
+    handOver: 'Konec partije.',
+    get cpuPlaying() { return `${stName()} meče.`; },
+    replyStrict: c => `Na mizi je ${stNom(c)}. Daj isto barvo ali višjo, če maš, drugače aduta.`,
+    replyFree: c => `Na mizi je ${stNom(c)}. Lahko daš kaj češ.`,
+    leadDeclared: 'Vrži krala ali babo, ali prekliči.',
+    claimHint: n => `Maš ${n} točk. Pritisni Mam 66.`,
+    yourLead: 'Ti si.',
+    declareBtn: (v, g) => `Maš ${v} ${g}`,
+    cancelBtn: (v, g) => `Prekliči ${v} ${g}`,
+    swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
+    closeStockBtn: 'Zapri',
+    claimBtn: 'Mam 66',
+    wonTrick: g => mode === 'hard' ? 'Toti štih je tvoj.' : `Toti štih je tvoj (+${g}).`,
+    cpuWonTrick: () => `Toti štih je pobral ${stLower()}.`,
+    drew: c => `Dobiš ${stAcc(c)}.`,
+    stockEmpty: () => 'Ni več kart, zdaj velajo stroga pravila.',
+    swapped: (p, c) => `${stIs(p, 'Ti zamenjaš', `${stName()} zamenja`)} adutovega pubeca za ${stAcc(c)}.`,
+    closed: p => stIs(p, 'Ti zapreš. Zdaj velajo stroga pravila in rabiš 66.', `${stName()} zapre.`),
+    declared: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${v} ${g}.`,
+    led: (p, c) => `${stIs(p, 'Ti mečeš', `${stName()} je vrgo`)} ${stAcc(c)}.`,
+    ledHolds: (p, c, other) => `${stIs(p, 'Ti mečeš', `${stName()} je vrgo`)} ${stAcc(c)}. V roki ${stIs(p, 'maš', 'ma')} še ${stAcc(other)}.`,
+    announceTitle: v => `${stName()} ma ${v}!`,
+    announceText: (v, s, isTrump) => `${stCap(ST_SUIT[s])}${isTrump ? ' je adut' : ''}`,
+    claimed: (p, n) => `${stIs(p, 'Maš', `${stName()} ma`)} ${n} točk.`,
+    closedMade: (p, n) => `${stIs(p, 'Ti zapreš in maš', `${stName()} zapre in ma`)} ${n} točk.`,
+    lastTrick: (p, n) => `Zadnji štih ${stIs(p, 'je tvoj', `je pobral ${stLower()}`)}, ${n} točk.`,
+    loserNoTricks: p => stIs(p, 'Ti nimaš štiha.', `${stName()} nima štiha.`),
+    loserUnder33: p => `${stIs(p, 'Ti maš', `${stName()} ma`)} manj kot 33 točk.`,
+    loserOver33: p => `${stIs(p, 'Ti maš', `${stName()} ma`)} 33 točk ali več.`,
+    wrongClaim: (p, n) => `${stIs(p, 'Praviš 66, maš pa', `${stName()} pravi 66, ma pa`)} samo ${n} točk.`,
+    closeFailed: p => stIs(p, 'Ti zapreš, pa ne prideš do 66.', `${stName()} zapre, pa ne pride do 66.`),
+    noClaim: () => 'Nihče ni reku 66, zato zmaga zadnji štih.',
+    forgot: (p, n) => `${stIs(p, 'Ti maš', `${stName()} ma`)} ${n} točk, ampak brez prijave.`,
+    handWin: p => stIs(p, 'Ti si zmagala toto partijo', `${stName()} je zmagal toto partijo`),
+    matchWin: p => stIs(p, 'Ti si zmagala toto igro', `${stName()} je zmagal toto igro`),
+    get defeatTitle() { return `${stName()} je zmagal toto igro`; },
+    defeatSad: 'Drugič bo bolje…',
+    victoryTitle: 'Ti si zmagala toto igro!',
+    victoryHint: 'Klikni za naprej',
+    gain: (p, n) => `${stIs(p, 'Dobiš', `${stName()} dobi`)} ${n} za igro.`,
+    tallyYou: 'Tvoje točke v partiji',
+    get tallyCpu() { return `Točke ${stGen()} v partiji`; },
+    get tallyMatch() { return `Stanje v igri, ti : ${stLower()}`; },
+    get viewTitle() { return { me: 'Moji štihi', cpu: stTricks(), log: 'Potek igre' }; },
+    nextHand: 'Naslednja partija',
+    newMatch: 'Nova igra',
+    newMatchConfirm: 'Pritisni še enkrat za novo igro',
+    closeBtn: 'Zapri',
+    noTricks: p => stIs(p, 'Ti nimaš štiha.', `${stName()} nima štiha.`),
+    cardPoints: (n, m) => `Točk iz kart: ${n}${m > 0 ? `, plus ${m} iz 20 in 40` : ''}.`,
+    trickLabel: n => `Štih ${n}`,
+    trickPoints: (n, v) => `Štih ${n}: ${v} točk`,
+    logDealLabel: 'Deljenje',
+    logSwapLabel: 'Menjava',
+    logCloseLabel: 'Zapri',
+    logMarriageLabel: v => `${v}`,
+    logResultLabel: 'Konec',
+    logDeal: (trump, first, you, cpu, card) => `Adut je ${ST_SUIT[suit(card)]}, na mizi je ${trump}. ${stIs(first, 'Začneš ti', `Začne ${stLower()}`)}.<br>
+      Tvoje karte: ${you}<br>
+      Karte ${stGen()}: ${cpu}`,
+    logSwap: (p, c) => `${stIs(p, 'Ti zamenjaš', `${stName()} zamenja`)} adutovega pubeca za ${c}.`,
+    logClose: p => stIs(p, 'Ti zapreš.', `${stName()} zapre.`),
+    logMarriage: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${v} ${g}.`,
+    logTrick: (lead, leadCard, reply, replyCard, w, gain, pts) => `${stIs(lead, 'Ti mečeš', `${stName()} je vrgo`)} ${leadCard}. ${stIs(reply, 'Ti daš', `${stName()} da`)} ${replyCard}.<br>
+      Štih ${stIs(w, 'je tvoj', `je pobral ${stLower()}`)}, ${gain} točk. Stanje: ti ${pts[YOU]}, ${stLower()} ${pts[CPU]}.`,
+    logDrew: (you, cpu) => `<br>Dobiš ${you}. ${stName()} dobi ${cpu}.`
+  }
+};
+
+const L = () => STRINGS[lang] || STRINGS.en;
+const entriesText = list => typeof list === 'string' ? list : list.map(([key, ...args]) => L()[key](...args)).join(' ');
+
+/* ---------- Rules ---------- */
+
+function newMatch() {
+  S = { gp: [0, 0], dealer: CPU };
+  deal();
+}
+
+function deal() {
+  const d = [];
+  for (const s of SUITS) for (const r of RANKS) d.push(s + r);
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [d[i], d[j]] = [d[j], d[i]];
+  }
+  S.hands = [d.splice(0, 5), d.splice(0, 5)];
+  S.stock = d;
+  S.trump = d[d.length - 1];
+  S.trumpSuit = suit(S.trump);
+  S.closedBy = null;
+  S.closedOppTricks = 0;
+  S.tricks = [0, 0];
+  S.won = [[], []];
+  S.pts = [0, 0];
+  S.pending = [0, 0];
+  S.played = [];
+  S.table = [];
+  S.declared = null;
+  S.newCard = null;
+  S.announce = null;
+  S.marriageAlert = false;
+  S.over = null;
+  S.turn = 1 - S.dealer;
+  S.note = [];
+  S.log = [{ t: 'deal', hands: [S.hands[YOU].slice(), S.hands[CPU].slice()], trump: S.trump, first: S.turn }];
+}
+
+const strict = () => S.closedBy !== null || S.stock.length === 0;
+const onLead = p => !S.over && S.turn === p && S.table.length === 0;
+const beats = (lead, reply) => suit(reply) === suit(lead) ? val(reply) > val(lead) : suit(reply) === S.trumpSuit;
+
+function legal(p) {
+  const hand = S.hands[p];
+  if (S.table.length === 0) {
+    return S.declared ? hand.filter(c => suit(c) === S.declared && (rank(c) === 'K' || rank(c) === 'Q')) : hand.slice();
+  }
+  if (!strict()) return hand.slice();
+  const lead = S.table[0].c;
+  const same = hand.filter(c => suit(c) === suit(lead));
+  if (same.length) {
+    const higher = same.filter(c => val(c) > val(lead));
+    return higher.length ? higher : same;
+  }
+  const trumps = hand.filter(c => suit(c) === S.trumpSuit);
+  return trumps.length ? trumps : hand.slice();
+}
+
+const canSwap = p => onLead(p) && !S.declared && !strict() && S.hands[p].includes(S.trumpSuit + 'J');
+const canClose = p => onLead(p) && !S.declared && !strict();
+const marriages = p => S.declared || !onLead(p) ? [] :
+  SUITS.filter(s => S.hands[p].includes(s + 'K') && S.hands[p].includes(s + 'Q'));
+const marriageValue = s => s === S.trumpSuit ? 40 : 20;
+
+function swapTrump(p) {
+  const jack = S.trumpSuit + 'J';
+  const hand = S.hands[p];
+  S.log.push({ t: 'swap', p, c: S.trump });
+  hand[hand.indexOf(jack)] = S.trump;
+  S.stock[S.stock.length - 1] = jack;
+  S.trump = jack;
+}
+
+function closeStock(p) {
+  S.closedBy = p;
+  S.closedOppTricks = S.tricks[1 - p];
+  S.log.push({ t: 'close', p });
+}
+
+function declare(p, s) {
+  const v = marriageValue(s);
+  if (S.tricks[p] > 0) S.pts[p] += v; else S.pending[p] += v;
+  S.declared = s;
+  S.log.push({ t: 'marriage', p, s, v });
+}
+
+function cancelDeclare(p) {
+  const v = marriageValue(S.declared);
+  if (S.tricks[p] > 0) S.pts[p] -= v; else S.pending[p] -= v;
+  S.declared = null;
+  S.log.pop();
+}
+
+function playCard(p, c) {
+  const hand = S.hands[p];
+  hand.splice(hand.indexOf(c), 1);
+  S.table.push({ p, c });
+  S.declared = null;
+  if (S.table.length === 1) S.turn = 1 - p;
+}
+
+function resolveTrick() {
+  const [a, b] = S.table;
+  const w = beats(a.c, b.c) ? b.p : a.p;
+  const l = 1 - w;
+  const gain = val(a.c) + val(b.c);
+  S.tricks[w]++;
+  if (S.tricks[w] === 1) { S.pts[w] += S.pending[w]; S.pending[w] = 0; }
+  S.pts[w] += gain;
+  S.played.push(a.c, b.c);
+  S.won[w].push([a.c, b.c]);
+  S.table = [];
+  S.turn = w;
+  S.note = [w === YOU ? ['wonTrick', gain] : ['cpuWonTrick']];
+  let drew = null;
+  if (S.closedBy === null && S.stock.length) {
+    const first = S.stock.shift();
+    const second = S.stock.shift();
+    S.hands[w].push(first);
+    S.hands[l].push(second);
+    S.newCard = w === YOU ? first : second;
+    drew = w === YOU ? [first, second] : [second, first];
+    S.note.push(['drew', S.newCard]);
+    if (!S.stock.length) S.note.push(['stockEmpty']);
+  }
+  S.log.push({ t: 'trick', n: S.tricks[YOU] + S.tricks[CPU], lead: a, reply: b, w, gain, drew, pts: S.pts.slice() });
+  if (!S.hands[w].length) endLastTrick(w);
+}
+
+function finish(w, gp, why) {
+  S.gp[w] += gp;
+  S.over = { w, gp, why, matchOver: S.gp[w] >= GOAL };
+}
+
+function normalWin(w, how) {
+  const l = 1 - w;
+  if (S.tricks[l] === 0) finish(w, 3, [how, ['loserNoTricks', l]]);
+  else if (S.pts[l] < 33) finish(w, 2, [how, ['loserUnder33', l]]);
+  else finish(w, 1, [how, ['loserOver33', l]]);
+}
+
+function closeFailed(w) {
+  const closer = 1 - w;
+  const gp = S.closedOppTricks === 0 ? 3 : 2;
+  finish(w, gp, [['closeFailed', closer]]);
+}
+
+function claim(p) {
+  const o = 1 - p;
+  if (S.pts[p] < 66) {
+    finish(o, S.tricks[o] === 0 ? 3 : 2, [['wrongClaim', p, S.pts[p]]]);
+  } else if (S.closedBy === o) {
+    closeFailed(p);
+  } else {
+    normalWin(p, ['claimed', p, S.pts[p]]);
+  }
+}
+
+function endLastTrick(w) {
+  if (S.closedBy !== null) {
+    if (S.closedBy === w && S.pts[w] >= 66) normalWin(w, ['closedMade', w, S.pts[w]]);
+    else closeFailed(1 - S.closedBy);
+  } else if (S.pts[w] >= 66) {
+    normalWin(w, ['lastTrick', w, S.pts[w]]);
+  } else {
+    const why = [['noClaim']];
+    if (S.pts[1 - w] >= 66) why.push(['forgot', 1 - w, S.pts[1 - w]]);
+    finish(w, 1, why);
+  }
+}
+
+/* ---------- Computer player: uses only its own hand and the cards it has seen ---------- */
+
+function unseen(p) {
+  const seen = new Set([...S.hands[p], ...S.played, ...S.table.map(t => t.c)]);
+  if (S.stock.length) seen.add(S.trump);
+  const out = [];
+  for (const s of SUITS) for (const r of RANKS) if (!seen.has(s + r)) out.push(s + r);
+  return out;
+}
+
+const isBoss = (p, c) => !unseen(p).some(u => suit(u) === suit(c) && val(u) > val(c));
+const inPair = (p, c) => {
+  const other = rank(c) === 'K' ? 'Q' : rank(c) === 'Q' ? 'K' : null;
+  return other && S.hands[p].includes(suit(c) + other);
+};
+
+function shouldClose(p) {
+  const hand = S.hands[p];
+  const trumps = hand.filter(c => suit(c) === S.trumpSuit).sort((a, b) => val(b) - val(a));
+  const rivals = unseen(p).filter(c => suit(c) === S.trumpSuit);
+  const sure = trumps.filter(c => isBoss(p, c) || !rivals.some(u => val(u) > val(c)));
+  if (!sure.length) return false;
+  let total = S.pts[p];
+  for (const c of sure) total += val(c) + 3;
+  if (sure.length >= rivals.length) {
+    for (const c of hand) if (suit(c) !== S.trumpSuit && isBoss(p, c)) total += val(c) + 3;
+  }
+  const m = marriages(p);
+  if (m.length && S.tricks[p] > 0) total += Math.max(...m.map(marriageValue));
+  return total >= 70;
+}
+
+function cpuLead(p) {
+  if (S.pts[p] >= 66) { claim(p); return; }
+  if (canSwap(p)) {
+    const taken = S.trump;
+    swapTrump(p);
+    S.note.push(['swapped', p, taken]);
+  }
+  if (canClose(p) && shouldClose(p)) {
+    closeStock(p);
+    S.note.push(['closed', p]);
+  }
+  const ms = marriages(p).sort((a, b) => marriageValue(b) - marriageValue(a));
+  if (ms.length) {
+    const s = ms[0];
+    declare(p, s);
+    S.note.push(['declared', p, marriageValue(s), GLYPH[s]]);
+    S.announce = { s, v: marriageValue(s) };
+    return;
+  }
+  cpuPlayLead(p);
+}
+
+/* The second half of the computer's lead. After a marriage it runs once the announcement has been shown. */
+function cpuPlayLead(p) {
+  const married = S.announce;
+  S.announce = null;
+  if (married && S.tricks[p] > 0 && S.pts[p] >= 66) { claim(p); return; }
+  const c = chooseLead(p);
+  playCard(p, c);
+  if (married) {
+    S.marriageAlert = true;
+    S.note.push(['ledHolds', p, c, suit(c) + (rank(c) === 'K' ? 'Q' : 'K')]);
+  } else {
+    S.note.push(['led', p, c]);
+  }
+}
+
+function chooseLead(p) {
+  const opts = legal(p);
+  if (S.declared) {
+    const k = opts.find(c => rank(c) === 'K');
+    const q = opts.find(c => rank(c) === 'Q');
+    return strict() && isBoss(p, k) ? k : q;
+  }
+  if (strict()) {
+    const rivals = unseen(p).filter(c => suit(c) === S.trumpSuit).length;
+    const bosses = opts.filter(c => isBoss(p, c));
+    const bossTrump = bosses.filter(c => suit(c) === S.trumpSuit);
+    if (rivals && bossTrump.length) return bossTrump.sort((a, b) => val(b) - val(a))[0];
+    if (bosses.length) return bosses.sort((a, b) => val(b) - val(a))[0];
+    return opts.slice().sort((a, b) => leadCost(p, a) - leadCost(p, b))[0];
+  }
+  const cash = opts.find(c => suit(c) === S.trumpSuit && isBoss(p, c) && S.pts[p] + val(c) + 2 >= 66);
+  if (cash) return cash;
+  return opts.slice().sort((a, b) => leadCost(p, a) - leadCost(p, b))[0];
+}
+
+function leadCost(p, c) {
+  let cost = val(c);
+  if (suit(c) === S.trumpSuit) cost += 12;
+  if (inPair(p, c)) cost += 10;
+  return cost + Math.random();
+}
+
+function chooseReply(p) {
+  const lead = S.table[0].c;
+  const opts = legal(p);
+  const byValue = list => list.slice().sort((a, b) => val(a) - val(b));
+  if (strict()) {
+    const winners = opts.filter(c => beats(lead, c));
+    if (winners.length) {
+      const finisher = byValue(winners).find(c => S.pts[p] + val(lead) + val(c) >= 66);
+      return finisher || byValue(winners)[0];
+    }
+    const plain = opts.filter(c => suit(c) !== S.trumpSuit);
+    return byValue(plain.length ? plain : opts)[0];
+  }
+  const score = c => {
+    const pair = inPair(p, c) ? 9 : 0;
+    const isTrump = suit(c) === S.trumpSuit;
+    if (beats(lead, c)) {
+      const take = val(lead) + val(c);
+      if (S.pts[p] + take + (S.tricks[p] ? 0 : S.pending[p]) >= 66) return 100 + take;
+      return take - pair - (isTrump ? 6 : 0) - (isTrump && val(c) >= 10 ? 6 : 0);
+    }
+    return -(val(lead) + val(c)) - pair - (isTrump ? 12 : 0);
+  };
+  return opts.slice().sort((a, b) => score(b) - score(a))[0];
+}
+
+function cpuAct(p) {
+  if (S.announce) cpuPlayLead(p);
+  else if (S.table.length === 0) cpuLead(p);
+  else playCard(p, chooseReply(p));
+}
+
+/* ---------- Pacing ---------- */
+
+function step() {
+  clearTimeout(timer);
+  if (S.over) return;
+  if (S.table.length === 2) {
+    timer = setTimeout(() => {
+      flyTrickToPile();
+      timer = setTimeout(() => { resolveTrick(); render(); step(); }, reducedMotion() ? 0 : 600);
+    }, 3200);
+  } else if (S.turn === CPU) {
+    timer = setTimeout(() => { cpuAct(CPU); render(); step(); }, S.announce ? 3000 : 800);
+  }
+}
+
+/* ---------- Rendering ---------- */
+
+function cardFace(c, tag, attrs) {
+  const label = L().cardAlt(c);
+  const trump = tag === 'button' && suit(c) === S.trumpSuit ? ' is-trump' : '';
+  return `<${tag} class="card${trump}${attrs.cls || ''}" ${attrs.extra || ''}>` +
+    `<img src="cards/${c}.jpg" alt="${label}" draggable="false">${attrs.inner || ''}</${tag}>`;
+}
+
+let trickShown = null;
+const pileShown = {};
+
+/* A pile only shows once that player has won a trick. Each card's angle comes from its name, so it never shifts. */
+function renderPile(p, id) {
+  const el = $(id);
+  const cards = S.won[p].flat();
+  const key = `${cards.join()}:${mode}`;
+  if (pileShown[id] === key) return;
+  pileShown[id] = key;
+  el.innerHTML = cards.map(c => {
+    const h = c.charCodeAt(0) * 7 + c.charCodeAt(1) * 131;
+    const rot = h * 37 % 91 - 45;
+    const dx = h * 13 % 51 - 25;
+    const dy = h * 29 % 31 - 15;
+    return `<span class="card" style="transform: translate(${dx}%, ${dy}%) rotate(${rot}deg)"><img src="cards/back.jpg" alt="" draggable="false"></span>`;
+  }).join('');
+  el.classList.toggle('empty', !cards.length);
+  const count = S.won[p].length;
+  el.setAttribute('aria-label', L().pileAria(p, mode === 'hard' ? '?' : count));
+  const canOpen = p === YOU ? mode !== 'hard' : mode === 'easy';
+  el.disabled = !count || !canOpen;
+  el.title = !canOpen ? '' : p === YOU ? L().pileTitle : L().pileTitleCpu;
+}
+
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Sends both table cards to the winner's pile. The game state changes when this has finished. */
+function flyTrickToPile() {
+  if (reducedMotion()) return;
+  const [a, b] = S.table;
+  const w = beats(a.c, b.c) ? b.p : a.p;
+  const target = $(w === YOU ? 'myPile' : 'cpuPile').getBoundingClientRect();
+  document.querySelectorAll('#trick .card').forEach((el, i) => {
+    const r = el.getBoundingClientRect();
+    const dx = target.left + target.width / 2 - (r.left + r.width / 2);
+    const dy = target.top + target.height / 2 - (r.top + r.height / 2);
+    const scale = target.width / 1.7 / el.offsetWidth;
+    el.style.zIndex = 5;
+    el.animate([
+      { transform: getComputedStyle(el).transform },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${i ? 200 : -160}deg) scale(${scale})` }
+    ], { duration: 520, delay: i * 70, easing: 'ease-in', fill: 'forwards' });
+  });
+}
+
+let lastArrived = null;
+
+/* Flies a newly received card from the stock to its place in the hand, once per card. */
+function animateArrival() {
+  if (S.newCard === lastArrived) return;
+  lastArrived = S.newCard;
+  if (!S.newCard || reducedMotion()) return;
+  const el = document.querySelector(`#hand [data-card="${S.newCard}"]`);
+  const from = document.querySelector('#stock .stock');
+  if (!el || !from) return;
+  const a = from.getBoundingClientRect();
+  const b = el.getBoundingClientRect();
+  const dx = a.left + a.width / 2 - (b.left + b.width / 2);
+  const dy = a.top + a.height / 2 - (b.top + b.height / 2);
+  el.animate([
+    { transform: `translate(${dx}px, ${dy}px) scale(.85) rotate(-8deg)` },
+    { transform: 'none' }
+  ], { duration: 700, easing: 'ease-out' });
+}
+
+const cardBack = cls => `<div class="card back${cls ? ' ' + cls : ''}" aria-hidden="true"><img src="cards/back.jpg" alt="" draggable="false"></div>`;
+
+function tallySvg(n) {
+  let marks = '', x = 4;
+  for (let i = 1; i <= n; i++) {
+    if (i % 5 === 0) {
+      marks += `<line x1="${x - 26}" y1="19" x2="${x - 1}" y2="4"/>`;
+      x += 8;
+    } else {
+      const tilt = i % 2 ? .6 : -.5;
+      marks += `<line x1="${x + tilt}" y1="3" x2="${x - tilt}" y2="20"/>`;
+      x += 6;
+    }
+  }
+  return `<svg viewBox="0 0 76 23" aria-hidden="true"><g stroke="currentColor" stroke-width="2" stroke-linecap="round">${marks}</g></svg>`;
+}
+
+function handOrder(hand) {
+  const order = [S.trumpSuit, ...SUITS.filter(s => s !== S.trumpSuit)];
+  return hand.slice().sort((a, b) => order.indexOf(suit(a)) - order.indexOf(suit(b)) || val(b) - val(a));
+}
+
+function promptText() {
+  if (S.over) return L().handOver;
+  if (S.table.length === 2) return '';
+  if (S.turn === CPU) return L().cpuPlaying;
+  if (S.table.length === 1) {
+    return strict() ? L().replyStrict(S.table[0].c) : L().replyFree(S.table[0].c);
+  }
+  if (S.declared) return L().leadDeclared;
+  if (mode !== 'hard' && S.pts[YOU] >= 66) return L().claimHint(S.pts[YOU]);
+  return L().yourLead;
+}
+
+function render() {
+  const canPlay = !S.over && S.turn === YOU && S.table.length < 2;
+  const allowed = canPlay ? legal(YOU) : [];
+
+  $('oppHand').innerHTML = S.hands[CPU].map(() => cardBack()).join('');
+  $('oppInfo').textContent = mode === 'easy' ? L().oppInfoEasy(S.pts[CPU], S.pending[CPU], S.tricks[CPU])
+    : mode === 'hard' ? L().oppInfoHard()
+    : L().oppInfo(S.tricks[CPU]);
+  $('oppMarks').innerHTML = mode === 'hard' ? '' : S.log.filter(e => e.t === 'marriage' && e.p === CPU).map(e => {
+    const label = L().logMarriage(CPU, e.v, GLYPH[e.s]);
+    return `<span class="marriage-chip" title="${label}" aria-label="${label}">${e.v} ${GLYPH[e.s]}</span>`;
+  }).join('');
+
+  const closed = S.closedBy !== null;
+  let pile = '';
+  if (S.stock.length) {
+    pile = (closed ? cardBack('under') : cardFace(S.trump, 'div', { cls: ' under' })) + cardBack('pile');
+  }
+  const stockNote = closed
+    ? L().stockClosed(S.closedBy)
+    : S.stock.length ? L().stockLeft(S.stock.length) : L().stockEmptyLabel;
+  $('stock').innerHTML = `<div class="stock">${pile}</div>` +
+    `<div class="stock-note"><b>${L().trump(GLYPH[S.trumpSuit], S.trumpSuit)}</b><br>${stockNote}</div>`;
+
+  const tableKey = S.table.map(t => t.c).join();
+  if (tableKey !== trickShown) {
+    trickShown = tableKey;
+    $('trick').innerHTML = S.table.map(t => cardFace(t.c, 'div', {})).join('');
+  }
+
+  $('mat').setAttribute('aria-label', L().matAria(S.gp[YOU], S.gp[CPU], GOAL));
+  $('mat').innerHTML = `<div class="goal">${L().matGoal(GOAL)}</div>` +
+    `<div class="who">${L().matYou}</div>${tallySvg(S.gp[YOU])}<div class="who">${L().matCpu}</div>${tallySvg(S.gp[CPU])}`;
+
+  $('status').innerHTML = (S.note.length ? `<div class="note">${entriesText(S.note)}</div>` : '') +
+    `<div class="prompt">${promptText()}</div>`;
+  $('status').classList.toggle('alert', !!S.marriageAlert);
+
+  $('announce').innerHTML = S.announce ? `<div class="announce" id="announceBox" role="alert">
+    <div class="announce-box">
+      <div class="announce-title">${L().announceTitle(S.announce.v)}</div>
+      <div class="announce-cards">${cardFace(S.announce.s + 'K', 'div', {})}${cardFace(S.announce.s + 'Q', 'div', {})}</div>
+      <div class="announce-text">${L().announceText(S.announce.v, S.announce.s, S.announce.s === S.trumpSuit)}</div>
+    </div>
+  </div>` : '';
+
+  let acts = '';
+  for (const s of marriages(YOU)) {
+    acts += `<button class="btn" data-act="declare" data-suit="${s}">${L().declareBtn(marriageValue(s), GLYPH[s])}</button>`;
+  }
+  if (S.declared && onLead(YOU)) {
+    acts += `<button class="btn" data-act="undeclare">${L().cancelBtn(marriageValue(S.declared), GLYPH[S.declared])}</button>`;
+  }
+  if (canSwap(YOU)) acts += `<button class="btn" data-act="swap">${L().swapBtn(S.trump)}</button>`;
+  if (canClose(YOU)) acts += `<button class="btn" data-act="close">${L().closeStockBtn}</button>`;
+  const ready = mode !== 'hard' && onLead(YOU) && S.pts[YOU] >= 66;
+  acts += `<button class="btn claim${ready ? ' ready' : ''}" data-act="claim"${onLead(YOU) ? '' : ' disabled'}>${L().claimBtn}</button>`;
+  $('actions').innerHTML = acts;
+
+  $('hand').innerHTML = handOrder(S.hands[YOU]).map(c => {
+    const ok = allowed.includes(c);
+    const dim = canPlay && !ok ? ' illegal' : '';
+    const isNew = c === S.newCard;
+    return cardFace(c, 'button', {
+      cls: dim + (isNew ? ' is-new' : ''),
+      extra: `data-card="${c}"${ok ? '' : ' disabled'}`,
+      inner: isNew ? '<span class="new-tag">New</span>' : ''
+    });
+  }).join('');
+  animateArrival();
+
+  renderScore();
+  $('settingsBtn').textContent = `⚙︎ ${L().settings}`;
+  renderSettings();
+
+  renderPile(YOU, 'myPile');
+  renderPile(CPU, 'cpuPile');
+
+  renderOver();
+  renderTricks();
+  renderSpread();
+  try { localStorage.setItem('snops-game', JSON.stringify(S)); } catch (e) {}
+}
+
+let lastScore = null;
+
+/* Your score tag: the number, a bar towards 66 with a mark at 33, and your tricks. */
+function renderScore() {
+  const pts = S.pts[YOU];
+  const visible = mode !== 'hard';
+  $('meInfo').setAttribute('aria-label', visible ? L().meInfo(pts, S.pending[YOU], S.tricks[YOU]) : L().scoreHint);
+  $('meInfo').classList.toggle('reached', visible && pts >= 66);
+  $('scoreNum').hidden = !visible;
+  $('scoreBar').hidden = !visible;
+  $('scoreTricks').hidden = !visible;
+  $('scoreUnit').textContent = visible ? L().scoreUnit : L().scoreHint;
+  $('scoreTricks').textContent = L().scoreTricks(S.tricks[YOU]);
+  $('scorePending').hidden = !visible || !S.pending[YOU];
+  $('scorePending').textContent = L().scorePending(S.pending[YOU]);
+  $('scoreNum').textContent = visible ? pts : '';
+  $('scoreFill').style.width = visible ? `${Math.min(pts / 66, 1) * 100}%` : '0';
+  if (visible && lastScore !== null && pts > lastScore && !reducedMotion()) {
+    $('scoreNum').animate([{ transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 400, easing: 'ease-out' });
+  }
+  lastScore = pts;
+}
+
+let settingsOpen = false;
+let confirmNewMatch = false;
+
+function renderSettings() {
+  const panel = $('settingsPanel');
+  panel.hidden = !settingsOpen;
+  $('settingsBtn').setAttribute('aria-expanded', settingsOpen);
+  if (!settingsOpen) return;
+  panel.innerHTML = `<div class="settings-label">${L().language}</div>
+    <div class="settings-options">${LANGUAGES.map(([id, name]) =>
+      `<button class="option" data-lang="${id}" aria-pressed="${id === lang}">${name}</button>`).join('')}</div>
+    <div class="settings-label">${L().modeLabel}</div>
+    <div class="settings-names">${MODES.map(id =>
+      `<button class="option" data-mode="${id}" aria-pressed="${id === mode}">${L().modeName[id]}</button>`).join('')}</div>
+    <div class="settings-hint">${L().modeHint(mode)}</div>
+    <div class="settings-label">${L().background}</div>
+    <div class="settings-swatches">${BACKGROUNDS.map(id =>
+      `<button class="option swatch-option" data-bg="${id}" aria-pressed="${id === background}"><span class="swatch" data-swatch="${id}"></span>${L().bg[id]}</button>`).join('')}</div>
+    <div class="settings-label">${L().cpuNameLabel}</div>
+    <div class="settings-names">${['default', ...Object.keys(CPU_NAMES)].map(id =>
+      `<button class="option" data-cpu="${id}" aria-pressed="${id === (CPU_NAMES[cpuName] ? cpuName : 'default')}">${CPU_NAMES[id] ? CPU_NAMES[id][0] : L().cpuDefault}</button>`).join('')}</div>    <button class="option rules-option" data-rules="open">${L().rulesTitle}</button>
+    <button class="option rules-option" data-newmatch="${confirmNewMatch ? 'yes' : 'ask'}">${confirmNewMatch ? L().newMatchConfirm : L().newMatch}</button>`;
+}
+
+function startNewMatch() {
+  clearTimeout(timer);
+  confirmNewMatch = false;
+  settingsOpen = false;
+  newMatch();
+  render();
+  step();
+}
+
+function openRules() {
+  settingsOpen = false;
+  renderSettings();
+  $('rulesView').innerHTML = `<div class="scrim" id="rulesScrim"><div class="result wide" role="dialog" aria-modal="true" aria-label="${L().rulesTitle}">
+    <h2>${L().rulesTitle}</h2>
+    <ul class="rules">${L().rules.map(([label, text]) => `<li><b>${label}</b><span>${text}</span></li>`).join('')}</ul>
+    <button class="btn" data-act="closeRules" id="closeRules">${L().closeBtn}</button>
+  </div></div>`;
+  $('closeRules').focus();
+}
+
+function closeRules() {
+  $('rulesView').innerHTML = '';
+  ($('nextBtn') || $('settingsBtn')).focus();
+}
+
+function applyBackground() {
+  document.documentElement.setAttribute('data-bg', background);
+}
+
+function setLanguage(id) {
+  lang = id;
+  document.documentElement.lang = id === 'st' ? 'sl' : 'en';
+  try { localStorage.setItem('snops-lang', id); } catch (e) {}
+  for (const k in pileShown) delete pileShown[k];
+  render();
+}
+
+function setMode(id) {
+  mode = id;
+  try { localStorage.setItem('snops-mode', id); } catch (e) {}
+  render();
+}
+
+function setCpuName(id) {
+  cpuName = id;
+  try { localStorage.setItem('snops-cpu', id); } catch (e) {}
+  for (const k in pileShown) delete pileShown[k];
+  render();
+}
+
+function setBackground(id) {
+  background = id;
+  applyBackground();
+  try { localStorage.setItem('snops-bg', id); } catch (e) {}
+  renderSettings();
+}
+
+function setSettingsOpen(open) {
+  settingsOpen = open;
+  confirmNewMatch = false;
+  renderSettings();
+  if (!open) $('settingsBtn').focus();
+}
+
+/* Your tricks laid out over the table during a hand: only the cards, as large as the screen allows. */
+let spreadOpen = false;
+let spreadClosing = false;
+let spreadCount = -1;
+let spreadOwner = YOU;
+const spreadPile = () => $(spreadOwner === YOU ? 'myPile' : 'cpuPile');
+
+function spreadLayout(n) {
+  const margin = 20, inner = 6, gap = 18;
+  let best = { w: 0, cols: 1 };
+  for (let cols = 1; cols <= n; cols++) {
+    const rows = Math.ceil(n / cols);
+    const w = Math.min(
+      (innerWidth - 2 * margin - (cols - 1) * gap - cols * inner) / (2 * cols),
+      (innerHeight - 2 * margin - (rows - 1) * gap) / (rows * 1.464)
+    );
+    if (w > best.w) best = { w, cols };
+  }
+  best.w = Math.floor(Math.min(best.w, 190));
+  best.width = best.cols * (2 * best.w + inner) + (best.cols - 1) * gap;
+  return best;
+}
+
+function pileTransform(el, i) {
+  const r = el.getBoundingClientRect();
+  const t = spreadPile().getBoundingClientRect();
+  const dx = t.left + t.width / 2 - (r.left + r.width / 2);
+  const dy = t.top + t.height / 2 - (r.top + r.height / 2);
+  return `translate(${dx}px, ${dy}px) rotate(${i % 2 ? -25 : 25}deg) scale(${t.width / 1.7 / r.width})`;
+}
+
+function renderSpread(force) {
+  if (S.over) spreadOpen = false;
+  if (!spreadOpen) {
+    if (!spreadClosing && spreadCount !== -1) { $('spread').innerHTML = ''; spreadCount = -1; }
+    return;
+  }
+  const pairs = S.won[spreadOwner];
+  if (!force && spreadCount === pairs.length) return;
+  const opening = spreadCount === -1;
+  spreadCount = pairs.length;
+  const { w, width } = spreadLayout(pairs.length);
+  $('spread').innerHTML = `<div class="spread" id="spreadBox" role="dialog" aria-label="${spreadOwner === YOU ? L().spreadAria : L().viewTitle.cpu}" tabindex="-1">
+    <div class="spread-cards" style="--cw: ${w}px; width: ${width}px">${pairs.map(pair =>
+      `<div class="spread-pair">${pair.map(c => cardFace(c, 'div', {})).join('')}</div>`).join('')}</div>
+  </div>`;
+  if (!opening) return;
+  $('spreadBox').focus();
+  if (reducedMotion()) return;
+  document.querySelectorAll('#spread .card').forEach((el, i) => {
+    el.animate([
+      { transform: pileTransform(el, i), opacity: .5 },
+      { transform: 'none', opacity: 1 }
+    ], { duration: 420, delay: i * 25, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'backwards' });
+  });
+}
+
+function openSpread(p) {
+  spreadOwner = p;
+  spreadOpen = true;
+  renderSpread();
+}
+
+function closeSpread() {
+  if (spreadClosing) return;
+  spreadOpen = false;
+  const finish = () => {
+    spreadClosing = false;
+    renderSpread();
+    if (!S.over) spreadPile().focus();
+  };
+  if (reducedMotion()) { finish(); return; }
+  spreadClosing = true;
+  document.querySelectorAll('#spread .card').forEach((el, i) => {
+    el.animate([{ transform: 'none' }, { transform: pileTransform(el, i) }], { duration: 260, easing: 'ease-in', fill: 'forwards' });
+  });
+  setTimeout(finish, 270);
+}
+
+/* The review panel on the end-of-hand screen. */
+let view = null;
+let viewShown = null;
+
+function tricksHtml(p) {
+  const won = S.won[p];
+  if (!won.length) return `<p>${L().noTricks(p)}</p>`;
+  const cardTotal = won.flat().reduce((sum, c) => sum + val(c), 0);
+  const marriagePts = S.pts[p] - cardTotal;
+  const summary = `<p>${L().cardPoints(cardTotal, marriagePts)}</p>`;
+  const items = won.map((pair, i) => `<div class="won-trick">
+      <div class="won-label">${L().trickPoints(i + 1, val(pair[0]) + val(pair[1]))}</div>
+      <div class="won-pair">${pair.map(c => cardFace(c, 'div', {})).join('')}</div>
+    </div>`).join('');
+  return `${summary}<div class="won-list">${items}</div>`;
+}
+
+const cardText = c => `<span class="log-card${suit(c) === 'H' || suit(c) === 'D' ? ' red' : ''}">${short(c)}</span>`;
+const cardTextAcc = c => `<span class="log-card${suit(c) === 'H' || suit(c) === 'D' ? ' red' : ''}">${L().cardAcc(c)}</span>`;
+
+function logRow(e) {
+  if (e.t === 'deal') {
+    return [L().logDealLabel, L().logDeal(cardText(e.trump), e.first, e.hands[YOU].map(cardText).join(', '), e.hands[CPU].map(cardText).join(', '), e.trump)];
+  }
+  if (e.t === 'swap') return [L().logSwapLabel, L().logSwap(e.p, cardTextAcc(e.c))];
+  if (e.t === 'close') return [L().logCloseLabel, L().logClose(e.p)];
+  if (e.t === 'marriage') return [L().logMarriageLabel(e.v), L().logMarriage(e.p, e.v, GLYPH[e.s])];
+  const drew = e.drew ? L().logDrew(cardTextAcc(e.drew[YOU]), cardTextAcc(e.drew[CPU])) : '';
+  return [L().trickLabel(e.n), L().logTrick(e.lead.p, cardTextAcc(e.lead.c), e.reply.p, cardTextAcc(e.reply.c), e.w, e.gain, e.pts) + drew];
+}
+
+function historyHtml() {
+  const rows = S.log.map(logRow);
+  if (S.over) rows.push([L().logResultLabel, `${entriesText(S.over.why)} ${L().gain(S.over.w, S.over.gp)}`]);
+  return `<ol class="log">${rows.map(([label, text]) =>
+    `<li><span class="log-label">${label}</span><span class="log-text">${text}</span></li>`).join('')}</ol>`;
+}
+
+function renderTricks() {
+  if (!S.over) view = null;
+  if (!view) {
+    if (viewShown) { $('tricksView').innerHTML = ''; viewShown = null; }
+    return;
+  }
+  const key = `${view}:${S.won[YOU].length}`;
+  if (viewShown === key) return;
+  const wasOpen = !!viewShown;
+  viewShown = key;
+  const tabs = `<div class="tabs">${['cpu', 'me', 'log'].map(v => {
+    const count = v === 'log' ? '' : ` (${S.won[v === 'me' ? YOU : CPU].length})`;
+    return `<button class="btn ghost" data-act="review" data-view="${v}" aria-pressed="${v === view}">${L().viewTitle[v]}${count}</button>`;
+  }).join('')}</div>`;
+  const body = view === 'log' ? historyHtml() : tricksHtml(view === 'me' ? YOU : CPU);
+  $('tricksView').innerHTML = `<div class="scrim" id="tricksScrim"><div class="result wide" role="dialog" aria-modal="true" aria-label="${L().viewTitle[view]}">
+    <h2>${L().viewTitle[view]}</h2>${tabs}${body}
+    <button class="btn" data-act="closeTricks" id="closeTricks">${L().closeBtn}</button>
+  </div></div>`;
+  const active = document.querySelector('#tricksView [aria-pressed="true"]');
+  if (wasOpen && active) active.focus(); else if (!wasOpen) $('closeTricks').focus();
+}
+
+function setView(v) {
+  view = v;
+  renderTricks();
+  if (!v) $('nextBtn').focus();
+}
+
+function renderOver() {
+  if (!S.over) { $('over').innerHTML = ''; return; }
+  const { w, gp, why, matchOver } = S.over;
+  const title = matchOver ? L().matchWin(w) : L().handWin(w);
+  $('over').innerHTML = `<div class="scrim"><div class="result" role="dialog" aria-modal="true" aria-label="${title}">
+    <h2>${title}</h2>
+    <p>${entriesText(why)}</p>
+    <p class="gain">${L().gain(w, gp)}</p>
+    <div class="tally">
+      <span>${L().tallyYou}</span><span>${S.pts[YOU]}</span>
+      <span>${L().tallyCpu}</span><span>${S.pts[CPU]}</span>
+      <span>${L().tallyMatch}</span><span>${S.gp[YOU]}–${S.gp[CPU]}</span>
+    </div>
+    <div class="tabs">
+      <button class="btn ghost" data-act="review" data-view="cpu">${L().viewTitle.cpu} (${S.won[CPU].length})</button>
+      <button class="btn ghost" data-act="review" data-view="me">${L().viewTitle.me} (${S.won[YOU].length})</button>
+      <button class="btn ghost" data-act="review" data-view="log">${L().viewTitle.log}</button>
+    </div>
+    <button class="btn" data-act="${matchOver ? 'match' : 'next'}" id="nextBtn">${matchOver ? L().newMatch : L().nextHand}</button>
+  </div></div>`;
+  if (matchOver && !S.over.celebrated && !reducedMotion()) {
+    S.over.celebrated = true;
+    if (w === YOU) startVictory(); else startDefeat();
+  }
+  $('over').hidden = !!victory;
+  if (!victory) $('nextBtn').focus();
+}
+
+/* The match-winning celebration: the family deck bounces across the table, leaving fading trails. */
+let victory = null;
+
+const shuffled = list => list.map(c => [Math.random(), c]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
+const COURT_CARDS = SUITS.flatMap(s => ['K', 'Q', 'J'].map(r => s + r));
+const NUMBER_CARDS = SUITS.flatMap(s => ['A', 'T'].map(r => s + r));
+
+function cardSprite(c, cw, ch, dpr, gray) {
+  const img = CARD_IMAGES[c];
+  if (!img || !img.complete || !img.naturalWidth) return null;
+  const off = document.createElement('canvas');
+  off.width = cw * dpr;
+  off.height = ch * dpr;
+  const o = off.getContext('2d');
+  o.scale(dpr, dpr);
+  o.beginPath();
+  o.roundRect(0, 0, cw, ch, cw * .06);
+  o.clip();
+  o.drawImage(img, 0, 0, cw, ch);
+  if (gray) {
+    o.globalCompositeOperation = 'saturation';
+    o.fillStyle = '#000';
+    o.fillRect(0, 0, cw, ch);
+    o.globalCompositeOperation = 'multiply';
+    o.fillStyle = '#a9adb8';
+    o.fillRect(0, 0, cw, ch);
+    o.globalCompositeOperation = 'source-over';
+  }
+  o.strokeStyle = 'rgba(0, 0, 0, .35)';
+  o.stroke();
+  return off;
+}
+
+/* The match-losing scene: colour drains from the table and the family falls slowly through the rain. */
+function startDefeat() {
+  const W = innerWidth, H = innerHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const cw = Math.round(Math.max(60, Math.min(W * .13, 110)));
+  const ch = Math.round(cw * 1.464);
+  const sprites = shuffled(COURT_CARDS).concat(shuffled(NUMBER_CARDS).slice(0, 2))
+    .map(c => cardSprite(c, cw, ch, dpr, true)).filter(Boolean);
+  if (!sprites.length) return;
+
+  $('victory').innerHTML = `<div class="victory defeat" id="victoryBox" role="alert">
+    <canvas id="victoryCanvas" aria-hidden="true"></canvas>
+    <div class="victory-text">
+      <div class="victory-title">${L().defeatTitle}</div>
+      <div class="victory-score">${S.gp[YOU]}–${S.gp[CPU]}</div>
+      <div class="victory-sad">${L().defeatSad}</div>
+      <div class="victory-hint">${L().victoryHint}</div>
+    </div>
+  </div>`;
+  const canvas = $('victoryCanvas');
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const rain = Array.from({ length: Math.min(160, Math.round(W * H / 7000)) }, () => ({
+    x: Math.random() * (W + 80),
+    y: Math.random() * H,
+    len: 12 + Math.random() * 22,
+    speed: 520 + Math.random() * 380
+  }));
+  const state = { next: 0, spawnIn: .6, cards: [], last: performance.now() };
+  victory = state;
+  state.timeout = setTimeout(endVictory, 10500);
+
+  const frame = now => {
+    if (victory !== state) return;
+    const dt = Math.min((now - state.last) / 1000, .05);
+    state.last = now;
+    state.spawnIn -= dt;
+    if (state.spawnIn <= 0 && state.next < sprites.length) {
+      state.spawnIn = .32;
+      state.cards.push({
+        sprite: sprites[state.next++],
+        baseX: cw / 2 + Math.random() * (W - cw),
+        y: -ch,
+        restY: H - ch * .3 - Math.random() * ch * .35,
+        vy: H / (4.5 + Math.random() * 2),
+        sway: 18 + Math.random() * 40,
+        phase: Math.random() * 6.28,
+        rate: .9 + Math.random() * .7,
+        restRot: Math.random() * 1.1 - .55,
+        t: 0
+      });
+    }
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(190, 205, 225, .24)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (const d of rain) {
+      d.y += d.speed * dt;
+      d.x -= d.speed * .12 * dt;
+      if (d.y > H) { d.y = -d.len; d.x = Math.random() * (W + 80); }
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.len * .12, d.y + d.len);
+    }
+    ctx.stroke();
+    for (const c of state.cards) {
+      c.t += dt;
+      if (c.y < c.restY) c.y = Math.min(c.restY, c.y + c.vy * dt);
+      const falling = Math.max(0, Math.min(1, (c.restY - c.y) / (ch * 1.5)));
+      const swing = Math.sin(c.t * c.rate + c.phase);
+      ctx.save();
+      ctx.translate(c.baseX + swing * c.sway * falling, c.y);
+      ctx.rotate(c.restRot + swing * .35 * falling);
+      ctx.drawImage(c.sprite, -cw / 2, -ch / 2, cw, ch);
+      ctx.restore();
+    }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+function startVictory() {
+  const W = innerWidth, H = innerHeight;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const cw = Math.round(Math.max(70, Math.min(W * .16, 130)));
+  const ch = Math.round(cw * 1.464);
+  const order = [...shuffled(COURT_CARDS), ...shuffled(NUMBER_CARDS), ...shuffled(COURT_CARDS).slice(0, 4)];
+  const sprites = order.map(c => cardSprite(c, cw, ch, dpr, false)).filter(Boolean);
+  if (!sprites.length) return;
+
+  $('victory').innerHTML = `<div class="victory" id="victoryBox" role="alert">
+    <canvas id="victoryCanvas" aria-hidden="true"></canvas>
+    <div class="victory-text">
+      <div class="victory-title">${L().victoryTitle}</div>
+      <div class="victory-score">${S.gp[YOU]}–${S.gp[CPU]}</div>
+      <div class="victory-hint">${L().victoryHint}</div>
+    </div>
+  </div>`;
+  const canvas = $('victoryCanvas');
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const state = { next: 0, spawnIn: 0, cards: [], last: performance.now() };
+  victory = state;
+  state.timeout = setTimeout(endVictory, 9000);
+
+  const frame = now => {
+    if (victory !== state) return;
+    const dt = Math.min((now - state.last) / 1000, .05);
+    state.last = now;
+    state.spawnIn -= dt;
+    if (state.spawnIn <= 0 && state.next < sprites.length) {
+      state.spawnIn = .24;
+      const speed = 130 + Math.random() * 230;
+      state.cards.push({
+        sprite: sprites[state.next++],
+        x: Math.random() * W,
+        y: -ch,
+        vx: Math.random() < .5 ? -speed : speed,
+        vy: Math.random() * 250,
+        rot: Math.random() * .8 - .4,
+        spin: Math.random() * 3 - 1.5
+      });
+    }
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0, 0, 0, .04)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+    for (const c of state.cards) {
+      c.vy += 1500 * dt;
+      c.x += c.vx * dt;
+      c.y += c.vy * dt;
+      c.rot += c.spin * dt;
+      if (c.y + ch / 2 > H) {
+        c.y = H - ch / 2;
+        c.vy = -Math.abs(c.vy) * .82;
+      }
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rot);
+      ctx.drawImage(c.sprite, -cw / 2, -ch / 2, cw, ch);
+      ctx.restore();
+    }
+    state.cards = state.cards.filter(c => c.x > -cw && c.x < W + cw);
+    if (state.next >= sprites.length && !state.cards.length) { endVictory(); return; }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+
+function endVictory() {
+  if (!victory) return;
+  clearTimeout(victory.timeout);
+  victory = null;
+  $('victoryBox').classList.add('ending');
+  setTimeout(() => { if (!victory) $('victory').innerHTML = ''; }, 500);
+  $('over').hidden = false;
+  $('nextBtn').focus();
+}
+
+document.addEventListener('keydown', e => {
+  if (victory && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); endVictory(); return; }
+  if (e.key === 'Escape' && $('closeRules')) { closeRules(); return; }
+  if (e.key === 'Escape' && view) setView(null);
+  if (e.key === 'Escape' && spreadOpen) closeSpread();
+  if (e.key === 'Escape' && settingsOpen) setSettingsOpen(false);
+});
+
+window.addEventListener('resize', () => { if (spreadOpen) renderSpread(true); });
+
+document.addEventListener('click', e => {
+  if (victory) { endVictory(); return; }
+  if (e.target.id === 'rulesScrim' || e.target.id === 'closeRules') { closeRules(); return; }
+  if (e.target.closest('#settingsBtn')) { setSettingsOpen(!settingsOpen); return; }
+  if (settingsOpen) {
+    const option = e.target.closest('.option');
+    if (option && option.dataset.newmatch === 'yes') startNewMatch();
+    else if (option && option.dataset.newmatch) { confirmNewMatch = true; renderSettings(); }
+    else if (option && option.dataset.rules) openRules();
+    else if (option && option.dataset.mode) setMode(option.dataset.mode);
+    else if (option && option.dataset.cpu) setCpuName(option.dataset.cpu);
+    else if (option && option.dataset.lang) setLanguage(option.dataset.lang);
+    else if (option) setBackground(option.dataset.bg);
+    else if (!e.target.closest('#settingsPanel')) setSettingsOpen(false);
+    return;
+  }
+  if (e.target.closest('#spreadBox')) { closeSpread(); return; }
+  if (e.target.id === 'tricksScrim') { setView(null); return; }
+  if (S.announce && e.target.closest('#announceBox')) { cpuAct(CPU); render(); step(); return; }
+  const b = e.target.closest('[data-act],[data-card]');
+  if (!b || b.disabled) return;
+  // Looking at tricks never touches the game, so the computer's pending move keeps its timing.
+  if (b.dataset.act === 'tricks') { openSpread(YOU); return; }
+  if (b.dataset.act === 'cpuTricks') { openSpread(CPU); return; }
+  if (b.dataset.act === 'review') { setView(b.dataset.view); return; }
+  if (b.dataset.act === 'closeTricks') { setView(null); return; }
+  const card = b.dataset.card;
+  if (card) {
+    if (S.turn === YOU && S.table.length < 2 && legal(YOU).includes(card)) {
+      S.note = [];
+      S.newCard = null;
+      S.marriageAlert = false;
+      playCard(YOU, card);
+    }
+  } else {
+    const act = b.dataset.act;
+    if (act === 'next') { S.dealer = 1 - S.dealer; deal(); }
+    else if (act === 'match') newMatch();
+    else if (act === 'claim' && onLead(YOU)) claim(YOU);
+    else if (act === 'swap' && canSwap(YOU)) {
+      const taken = S.trump;
+      swapTrump(YOU);
+      S.newCard = taken;
+      S.note = [['swapped', YOU, taken]];
+    } else if (act === 'close' && canClose(YOU)) {
+      closeStock(YOU);
+      S.note = [['closed', YOU]];
+    } else if (act === 'declare') {
+      S.noteBeforeDeclare = S.note;
+      declare(YOU, b.dataset.suit);
+      S.note = [['declared', YOU, marriageValue(b.dataset.suit), GLYPH[b.dataset.suit]]];
+    } else if (act === 'undeclare' && S.declared && onLead(YOU)) {
+      cancelDeclare(YOU);
+      S.note = S.noteBeforeDeclare || [];
+    }
+  }
+  render();
+  step();
+});
+
+const CARD_IMAGES = {};
+for (const s of SUITS) for (const r of RANKS) {
+  CARD_IMAGES[s + r] = new Image();
+  CARD_IMAGES[s + r].src = `cards/${s}${r}.jpg`;
+}
+
+const start = data => {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('snops-game')); } catch (e) {}
+  if (data && data.S) S = data.S;
+  else if (saved && saved.hands && saved.gp) S = saved;
+  else newMatch();
+  S.won = S.won || [[], []];
+  S.log = S.log || [];
+  if (!Array.isArray(S.note)) S.note = [];
+  if (!Array.isArray(S.noteBeforeDeclare)) S.noteBeforeDeclare = [];
+  if (!STRINGS[lang]) lang = 'en';
+  if (!MODES.includes(mode)) mode = 'normal';
+  if (!BACKGROUNDS.includes(background)) background = 'red';
+  document.documentElement.lang = lang === 'st' ? 'sl' : 'en';
+  applyBackground();
+  render();
+  step();
+};
+window.claude?.hot?.snapshot?.(() => ({ S }));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
