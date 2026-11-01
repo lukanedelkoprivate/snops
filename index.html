@@ -521,7 +521,9 @@ let timer = null;
 let lang = 'en';
 let background = 'red';
 let cpuName = 'default';
+let gender = 'm';
 try {
+  gender = localStorage.getItem('snops-gender') === 'f' ? 'f' : 'm';
   cpuName = localStorage.getItem('snops-cpu') || cpuName;
   mode = localStorage.getItem('snops-mode') || (localStorage.getItem('snops-count') === 'off' ? 'hard' : mode);
   lang = localStorage.getItem('snops-lang') || lang;
@@ -581,6 +583,9 @@ const stAcc = c => {
   return `${ST_SUIT_ADJ[suit(c)]}${r.fem ? 'o' : 'ega'} ${r.acc}`;
 };
 const stCap = s => s[0].toUpperCase() + s.slice(1);
+/* Slovenian past tense depends on who is speaking: "Zaprl si" or "Zaprla si". */
+const stG = (man, woman) => gender === 'f' ? woman : man;
+const stMarriage = g => `${ST_SUIT_ADJ[SUITS.find(s => GLYPH[s] === g)]}ih`;
 
 const STRINGS = {
   en: {
@@ -610,6 +615,9 @@ const STRINGS = {
     statWrong: 'Wrong claims',
     statsReset: 'Reset statistics',
     statsResetConfirm: 'Press again to delete all statistics',
+    genderLabel: 'You are',
+    genderName: { m: 'A man', f: 'A woman' },
+    genderHint: 'This changes the wording in Štajerska slovenščina.',
     modeLabel: 'Mode',
     modeName: { easy: 'Easy', normal: 'Normal', hard: 'Hard' },
     modeHint: m => ({
@@ -748,6 +756,9 @@ const STRINGS = {
     statWrong: 'Napačni Mam 66',
     statsReset: 'Zbriši statistiko',
     statsResetConfirm: 'Pritisni še enkrat, da zbrišeš vse',
+    genderLabel: 'Spol',
+    genderName: { m: 'Moški', f: 'Ženska' },
+    genderHint: '',
     modeLabel: 'Težavnost',
     modeName: { easy: 'Lahko', normal: 'Normalno', hard: 'Težko' },
     modeHint: m => ({
@@ -793,10 +804,10 @@ const STRINGS = {
     pileTitle: 'Poglej svoje štihe',
     spreadAria: 'Tvoji štihi',
     handOver: 'Konec partije.',
-    get cpuPlaying() { return `${stName()} meče.`; },
-    replyStrict: c => `Na mizi je ${stNom(c)}. Daj isto barvo ali višjo, če maš, drugače aduta.`,
+    get cpuPlaying() { return `${stName()} je na vrsti.`; },
+    replyStrict: () => 'Daj isto barvo al pa aduta, če maš.',
     replyFree: c => `Na mizi je ${stNom(c)}. Lahko daš kaj češ.`,
-    leadDeclared: 'Vrži krala ali babo, ali prekliči.',
+    leadDeclared: 'Vrži krala al pa babo, ali pa prekliči.',
     claimHint: n => `Maš ${n} točk. Pritisni Mam 66.`,
     yourLead: 'Ti si.',
     declareBtn: (v, g) => `Maš ${v} ${g}`,
@@ -804,34 +815,34 @@ const STRINGS = {
     swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
     closeStockBtn: 'Zapri',
     claimBtn: 'Mam 66',
-    wonTrick: g => mode === 'hard' ? 'Toti štih je tvoj.' : `Toti štih je tvoj (+${g}).`,
+    wonTrick: g => mode === 'hard' ? `Toti štih si ${stG('pobral', 'pobrala')}.` : `Toti štih si ${stG('pobral', 'pobrala')} (+${g}).`,
     cpuWonTrick: () => `Toti štih je pobral ${stLower()}.`,
-    drew: c => `Dobiš ${stAcc(c)}.`,
-    stockEmpty: () => 'Ni več kart, zdaj velajo stroga pravila.',
-    swapped: (p, c) => `${stIs(p, 'Ti zamenjaš', `${stName()} zamenja`)} adutovega pubeca za ${stAcc(c)}.`,
-    closed: p => stIs(p, 'Ti zapreš. Zdaj velajo stroga pravila in rabiš 66.', `${stName()} zapre.`),
-    declared: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${v} ${g}.`,
-    led: (p, c) => `${stIs(p, 'Ti mečeš', `${stName()} je vrgo`)} ${stAcc(c)}.`,
-    ledHolds: (p, c, other) => `${stIs(p, 'Ti mečeš', `${stName()} je vrgo`)} ${stAcc(c)}. V roki ${stIs(p, 'maš', 'ma')} še ${stAcc(other)}.`,
+    drew: c => `${stG('Dobil', 'Dobila')} si ${stAcc(c)}.`,
+    stockEmpty: () => 'Ni več kart, zaj velajo stroga pravila.',
+    swapped: (p, c) => `${stIs(p, `${stG('Zamenjal', 'Zamenjala')} si`, `${stName()} je zamenjal`)} adutovega pubeca za ${stAcc(c)}.`,
+    closed: p => stIs(p, `${stG('Zaprl', 'Zaprla')} si.`, `${stName()} je zaprl.`),
+    declared: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${stMarriage(g)} ${v} ${g}.`,
+    led: (p, c) => `${stIs(p, `${stG('Vrgo', 'Vrgla')} si`, `${stName()} je vrgo`)} ${stAcc(c)}.`,
+    ledHolds: (p, c, other) => `${stIs(p, `${stG('Vrgo', 'Vrgla')} si`, `${stName()} je vrgo`)} ${stAcc(c)}. V roki ${stIs(p, 'maš', 'ma')} še ${stAcc(other)}.`,
     announceTitle: v => `${stName()} ma ${v}!`,
     announceText: (v, s, isTrump) => `${stCap(ST_SUIT[s])}${isTrump ? ' je adut' : ''}`,
-    claimed: (p, n) => `${stIs(p, 'Maš', `${stName()} ma`)} ${n} točk.`,
-    closedMade: (p, n) => `${stIs(p, 'Ti zapreš in maš', `${stName()} zapre in ma`)} ${n} točk.`,
-    lastTrick: (p, n) => `Zadnji štih ${stIs(p, 'je tvoj', `je pobral ${stLower()}`)}, ${n} točk.`,
-    loserNoTricks: p => stIs(p, 'Ti nimaš štiha.', `${stName()} nima štiha.`),
-    loserUnder33: p => `${stIs(p, 'Ti maš', `${stName()} ma`)} manj kot 33 točk.`,
-    loserOver33: p => `${stIs(p, 'Ti maš', `${stName()} ma`)} 33 točk ali več.`,
-    wrongClaim: (p, n) => `${stIs(p, 'Praviš 66, maš pa', `${stName()} pravi 66, ma pa`)} samo ${n} točk.`,
-    closeFailed: p => stIs(p, 'Ti zapreš, pa ne prideš do 66.', `${stName()} zapre, pa ne pride do 66.`),
-    noClaim: () => 'Nihče ni reku 66, zato zmaga zadnji štih.',
-    forgot: (p, n) => `${stIs(p, 'Ti maš', `${stName()} ma`)} ${n} točk, ampak brez prijave.`,
-    handWin: p => stIs(p, 'Ti si zmagala toto partijo', `${stName()} je zmagal toto partijo`),
-    matchWin: p => stIs(p, 'Ti si zmagala toto igro', `${stName()} je zmagal toto igro`),
+    claimed: (p, n) => `${stIs(p, `${stG('Mel', 'Mela')} si`, `${stName()} je mel`)} ${n} točk.`,
+    closedMade: (p, n) => `${stIs(p, `${stG('Zaprl', 'Zaprla')} si in ${stG('mel', 'mela')}`, `${stName()} je zaprl in mel`)} ${n} točk.`,
+    lastTrick: (p, n) => `Zadnji štih ${stIs(p, `si ${stG('pobral', 'pobrala')}`, `je pobral ${stLower()}`)}, ${n} točk.`,
+    loserNoTricks: p => stIs(p, `Nisi ${stG('mel', 'mela')} štiha.`, `${stName()} ni mel štiha.`),
+    loserUnder33: p => `${stIs(p, `${stG('Mel', 'Mela')} si`, `${stName()} je mel`)} manj kot 33 točk.`,
+    loserOver33: p => `${stIs(p, `${stG('Mel', 'Mela')} si`, `${stName()} je mel`)} 33 točk ali več.`,
+    wrongClaim: (p, n) => `${stIs(p, `${stG('Reko', 'Rekla')} si 66, ${stG('mel', 'mela')} pa si`, `${stName()} je reko 66, mel pa je`)} samo ${n} točk.`,
+    closeFailed: p => stIs(p, `${stG('Zaprl', 'Zaprla')} si, pa nisi ${stG('prišel', 'prišla')} do 66.`, `${stName()} je zaprl, pa ni prišel do 66.`),
+    noClaim: () => 'Nihče ni reko 66, zato je zmagal zadnji štih.',
+    forgot: (p, n) => `${stIs(p, `${stG('Mel', 'Mela')} si`, `${stName()} je mel`)} ${n} točk, ampak brez prijave.`,
+    handWin: p => stIs(p, `Ti si ${stG('zmagal', 'zmagala')} toto partijo`, `${stName()} je zmagal toto partijo`),
+    matchWin: p => stIs(p, `Ti si ${stG('zmagal', 'zmagala')} toto igro`, `${stName()} je zmagal toto igro`),
     get defeatTitle() { return `${stName()} je zmagal toto igro`; },
     defeatSad: 'Drugič bo bolje…',
-    victoryTitle: 'Ti si zmagala toto igro!',
+    get victoryTitle() { return `Ti si ${stG('zmagal', 'zmagala')} toto igro!`; },
     victoryHint: 'Klikni za naprej',
-    gain: (p, n) => `${stIs(p, 'Dobiš', `${stName()} dobi`)} ${n} za igro.`,
+    gain: (p, n) => `${stIs(p, `${stG('Dobil', 'Dobila')} si`, `${stName()} je dobil`)} ${n} za igro.`,
     tallyYou: 'Tvoje točke v partiji',
     get tallyCpu() { return `Točke ${stGen()} v partiji`; },
     get tallyMatch() { return `Stanje v igri, ti : ${stLower()}`; },
@@ -840,7 +851,7 @@ const STRINGS = {
     newMatch: 'Nova igra',
     newMatchConfirm: 'Pritisni še enkrat za novo igro',
     closeBtn: 'Zapri',
-    noTricks: p => stIs(p, 'Ti nimaš štiha.', `${stName()} nima štiha.`),
+    noTricks: p => stIs(p, `Nisi ${stG('pobral', 'pobrala')} štiha.`, `${stName()} ni pobral štiha.`),
     cardPoints: (n, m) => `Točk iz kart: ${n}${m > 0 ? `, plus ${m} iz 20 in 40` : ''}.`,
     trickLabel: n => `Štih ${n}`,
     trickPoints: (n, v) => `Štih ${n}: ${v} točk`,
@@ -849,15 +860,15 @@ const STRINGS = {
     logCloseLabel: 'Zapri',
     logMarriageLabel: v => `${v}`,
     logResultLabel: 'Konec',
-    logDeal: (trump, first, you, cpu, card) => `Adut je ${ST_SUIT[suit(card)]}, na mizi je ${trump}. ${stIs(first, 'Začneš ti', `Začne ${stLower()}`)}.<br>
+    logDeal: (trump, first, you, cpu, card) => `Adut je ${ST_SUIT[suit(card)]}, na mizi je ${trump}. ${stIs(first, `${stG('Začel', 'Začela')} si`, `Začel je ${stLower()}`)}.<br>
       Tvoje karte: ${you}<br>
       Karte ${stGen()}: ${cpu}`,
-    logSwap: (p, c) => `${stIs(p, 'Ti zamenjaš', `${stName()} zamenja`)} adutovega pubeca za ${c}.`,
-    logClose: p => stIs(p, 'Ti zapreš.', `${stName()} zapre.`),
-    logMarriage: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${v} ${g}.`,
-    logTrick: (lead, leadCard, reply, replyCard, w, gain, pts) => `${stIs(lead, 'Ti mečeš', `${stName()} je vrgo`)} ${leadCard}. ${stIs(reply, 'Ti daš', `${stName()} da`)} ${replyCard}.<br>
-      Štih ${stIs(w, 'je tvoj', `je pobral ${stLower()}`)}, ${gain} točk. Stanje: ti ${pts[YOU]}, ${stLower()} ${pts[CPU]}.`,
-    logDrew: (you, cpu) => `<br>Dobiš ${you}. ${stName()} dobi ${cpu}.`
+    logSwap: (p, c) => `${stIs(p, `${stG('Zamenjal', 'Zamenjala')} si`, `${stName()} je zamenjal`)} adutovega pubeca za ${c}.`,
+    logClose: p => stIs(p, `${stG('Zaprl', 'Zaprla')} si.`, `${stName()} je zaprl.`),
+    logMarriage: (p, v, g) => `${stIs(p, 'Maš', `${stName()} ma`)} ${stMarriage(g)} ${v} ${g}.`,
+    logTrick: (lead, leadCard, reply, replyCard, w, gain, pts) => `${stIs(lead, `${stG('Vrgo', 'Vrgla')} si`, `${stName()} je vrgo`)} ${leadCard}. ${stIs(reply, `${stG('Dal', 'Dala')} si`, `${stName()} je dal`)} ${replyCard}.<br>
+      Štih ${stIs(w, `si ${stG('pobral', 'pobrala')}`, `je pobral ${stLower()}`)}, ${gain} točk. Stanje: ti ${pts[YOU]}, ${stLower()} ${pts[CPU]}.`,
+    logDrew: (you, cpu) => `<br>${stG('Dobil', 'Dobila')} si ${you}. ${stName()} je dobil ${cpu}.`
   }
 };
 
@@ -1445,6 +1456,10 @@ function renderSettings() {
   panel.innerHTML = `<div class="settings-label">${L().language}</div>
     <div class="settings-options">${LANGUAGES.map(([id, name]) =>
       `<button class="option" data-lang="${id}" aria-pressed="${id === lang}">${name}</button>`).join('')}</div>
+    <div class="settings-label">${L().genderLabel}</div>
+    <div class="settings-names">${['m', 'f'].map(id =>
+      `<button class="option" data-gender="${id}" aria-pressed="${id === gender}">${L().genderName[id]}</button>`).join('')}</div>
+    ${L().genderHint ? `<div class="settings-hint">${L().genderHint}</div>` : ''}
     <div class="settings-label">${L().modeLabel}</div>
     <div class="settings-names">${MODES.map(id =>
       `<button class="option" data-mode="${id}" aria-pressed="${id === mode}">${L().modeName[id]}</button>`).join('')}</div>
@@ -1563,6 +1578,12 @@ function setLanguage(id) {
   document.documentElement.lang = id === 'st' ? 'sl' : 'en';
   try { localStorage.setItem('snops-lang', id); } catch (e) {}
   for (const k in pileShown) delete pileShown[k];
+  render();
+}
+
+function setGender(id) {
+  gender = id;
+  try { localStorage.setItem('snops-gender', id); } catch (e) {}
   render();
 }
 
@@ -1985,6 +2006,7 @@ document.addEventListener('click', e => {
     if (option && option.dataset.newmatch === 'yes') startNewMatch();
     else if (option && option.dataset.newmatch) { confirmNewMatch = true; renderSettings(); }
     else if (option && option.dataset.rules) openRules();
+    else if (option && option.dataset.gender) setGender(option.dataset.gender);
     else if (option && option.dataset.mode) setMode(option.dataset.mode);
     else if (option && option.dataset.cpu) setCpuName(option.dataset.cpu);
     else if (option && option.dataset.lang) setLanguage(option.dataset.lang);

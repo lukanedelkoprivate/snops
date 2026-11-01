@@ -1,4 +1,4 @@
-const CACHE = 'snops-b56e5543ff43';
+const CACHE = 'snops-6fcd60127e73';
 const FONTS = 'snops-fonts';
 const FILES = [
   "cards/CA.jpg",
