@@ -530,7 +530,8 @@ try {
   background = localStorage.getItem('snops-bg') || background;
 } catch (e) {}
 
-const MODES = ['easy', 'normal', 'hard'];
+const MODES = ['easy', 'normal', 'hard', 'extreme'];
+const blind = () => mode === 'hard' || mode === 'extreme';
 const BACKGROUNDS = ['red', 'green', 'blue', 'wood'];
 const LANGUAGES = [['en', 'English'], ['st', 'Štajerska slovenščina']];
 
@@ -619,11 +620,12 @@ const STRINGS = {
     genderName: { m: 'A man', f: 'A woman' },
     genderHint: 'This changes the wording in Štajerska slovenščina.',
     modeLabel: 'Mode',
-    modeName: { easy: 'Easy', normal: 'Normal', hard: 'Hard' },
+    modeName: { easy: 'Easy', normal: 'Normal', hard: 'Hard', extreme: 'Extreme' },
     modeHint: m => ({
       easy: `You see your points and ${enGenLow()} points. Press ${enGenLow()} pile to see the tricks.`,
       normal: `You see your points and ${enGenLow()} 20s and 40s. ${enGen()} points and tricks stay hidden.`,
-      hard: 'No points, trick counts or marks. Keep it all in your head.'
+      hard: 'No points, trick counts or marks. Keep it all in your head.',
+      extreme: 'Hidden like Hard, against a much stronger opponent. Before each move it tries out hundreds of ways the unseen cards could lie. It never peeks at your hand.'
     })[m],
     oppInfoEasy: (pts, pending, n) => `${enName()}: ${pts} points${pending ? ` (+${pending})` : ''}, ${n} ${n === 1 ? 'trick' : 'tricks'}`,
     oppInfoHard: () => enName(),
@@ -641,8 +643,8 @@ const STRINGS = {
       ['Claiming', 'You score 1 game point if your opponent has 33 or more, 2 if under 33, and 3 if they have no tricks. A wrong claim gives your opponent 2, or 3 if they have no tricks.'],
       ['No claim', 'If every trick is played and nobody claimed, the last trick wins the hand for 1 game point. A last-trick winner with 66 or more scores as if they had claimed.'],
       ['Match', 'The first player to 7 game points wins.'],
-      ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard mode. At a real table you usually cannot look back. Your trumps have a gold edge.'],
-      ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Everything is revealed when the hand ends.']
+      ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard and Extreme. At a real table you usually cannot look back. Your trumps have a gold edge.'],
+      ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Extreme hides the same things and adds a much stronger opponent, who sees only what a player at the table can see. Everything is revealed when the hand ends.']
     ],
     bg: { red: 'Red check', green: 'Green felt', blue: 'Blue check', wood: 'Dark wood' },
     oppInfo: n => `${enName()}: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
@@ -674,7 +676,7 @@ const STRINGS = {
     swapBtn: c => `Swap jack for ${short(c)}`,
     closeStockBtn: 'Close stock',
     claimBtn: 'Claim 66',
-    wonTrick: g => mode === 'hard' ? 'You won the trick.' : `You won the trick (+${g}).`,
+    wonTrick: g => blind() ? 'You won the trick.' : `You won the trick (+${g}).`,
     cpuWonTrick: () => `${enName()} won the trick.`,
     drew: c => `You drew ${short(c)}.`,
     stockEmpty: () => 'The stock is empty, so strict rules apply.',
@@ -760,11 +762,12 @@ const STRINGS = {
     genderName: { m: 'Moški', f: 'Ženska' },
     genderHint: '',
     modeLabel: 'Težavnost',
-    modeName: { easy: 'Lahko', normal: 'Normalno', hard: 'Težko' },
+    modeName: { easy: 'Lahko', normal: 'Normalno', hard: 'Težko', extreme: 'Ekstremno' },
     modeHint: m => ({
       easy: `Vidiš svoje točke in točke ${stGen()}. Pritisni kup ${stGen()} in vidiš štihe.`,
       normal: `Vidiš svoje točke in 20 ali 40 ${stGen()}. Točke in štihi ${stGen()} so skriti.`,
-      hard: 'Brez točk, štihov in oznak. Vse štej v glavi.'
+      hard: 'Brez točk, štihov in oznak. Vse štej v glavi.',
+      extreme: 'Skrito kot pri Težko, nasprotnik pa je dosti močnejši. Pred vsako potezo preigra na stotine možnosti, kje so karte, ki jih ne vidi. V tvoje karte ne gleda.'
     })[m],
     oppInfoEasy: (pts, pending, n) => `${stName()}: ${pts} točk${pending ? ` (+${pending})` : ''}, ${stStihi(n)}`,
     oppInfoHard: () => stName(),
@@ -782,8 +785,8 @@ const STRINGS = {
       ['Mam 66', 'Dobiš 1 za igro, če ma nasprotnik 33 točk ali več, 2, če ma manj kot 33, in 3, če nima štiha. Če pritisneš brez 66 točk, dobi nasprotnik 2, ali 3, če nima štiha.'],
       ['Brez prijave', 'Če se odigrajo vsi štihi in nihče ne reče 66, zmaga zadnji štih in dobi 1 za igro. Kdor pobere zadnji štih in ma 66 točk ali več, dobi toliko, kot da bi prijavil.'],
       ['Igra', 'Zmaga, kdor prvi pride do 7 za igro.'],
-      ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko. Tvoji aduti majo zlat rob.'],
-      ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Na koncu partije se vidi vse.']
+      ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko in Ekstremno. Tvoji aduti majo zlat rob.'],
+      ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Ekstremno skrije isto, nasprotnik pa je dosti močnejši in vidi samo to, kar vidi igralec za mizo. Na koncu partije se vidi vse.']
     ],
     bg: { red: 'Rdeč karo', green: 'Zeleno sukno', blue: 'Moder karo', wood: 'Temen les' },
     oppInfo: n => `${stName()}: ${stStihi(n)}`,
@@ -815,7 +818,7 @@ const STRINGS = {
     swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
     closeStockBtn: 'Zapri',
     claimBtn: 'Mam 66',
-    wonTrick: g => mode === 'hard' ? `Toti štih si ${stG('pobral', 'pobrala')}.` : `Toti štih si ${stG('pobral', 'pobrala')} (+${g}).`,
+    wonTrick: g => blind() ? `Toti štih si ${stG('pobral', 'pobrala')}.` : `Toti štih si ${stG('pobral', 'pobrala')} (+${g}).`,
     cpuWonTrick: () => `Toti štih je pobral ${stLower()}.`,
     drew: c => `${stG('Dobil', 'Dobila')} si ${stAcc(c)}.`,
     stockEmpty: () => 'Ni več kart, zaj velajo stroga pravila.',
@@ -1124,11 +1127,13 @@ function cpuLead(p) {
     swapTrump(p);
     S.note.push(['swapped', p, taken]);
   }
-  if (canClose(p) && shouldClose(p)) {
+  const plan = mode === 'extreme' ? botPlanLead(p) : null;
+  if (plan ? plan.close : canClose(p) && shouldClose(p)) {
     closeStock(p);
     S.note.push(['closed', p]);
   }
-  const ms = marriages(p).sort((a, b) => marriageValue(b) - marriageValue(a));
+  S.plannedLead = plan ? plan.card : null;
+  const ms = plan ? (plan.marry ? [plan.marry] : []) : marriages(p).sort((a, b) => marriageValue(b) - marriageValue(a));
   if (ms.length) {
     const s = ms[0];
     declare(p, s);
@@ -1156,6 +1161,9 @@ function cpuPlayLead(p) {
 
 function chooseLead(p) {
   const opts = legal(p);
+  const planned = S.plannedLead;
+  S.plannedLead = null;
+  if (planned && opts.includes(planned)) return planned;
   if (S.declared) {
     const k = opts.find(c => rank(c) === 'K');
     const q = opts.find(c => rank(c) === 'Q');
@@ -1184,6 +1192,7 @@ function leadCost(p, c) {
 function chooseReply(p) {
   const lead = S.table[0].c;
   const opts = legal(p);
+  if (mode === 'extreme') return botPlanReply(p);
   const byValue = list => list.slice().sort((a, b) => val(a) - val(b));
   if (strict()) {
     const winners = opts.filter(c => beats(lead, c));
@@ -1211,6 +1220,319 @@ function cpuAct(p) {
   if (S.announce) cpuPlayLead(p);
   else if (S.table.length === 0) cpuLead(p);
   else playCard(p, chooseReply(p));
+}
+
+/* ---------- Extreme mode: before each move the computer deals the cards it cannot see in many possible
+   ways and plays every option out. It knows only what a sharp player at the table would remember. ---------- */
+
+const BOT = { worlds: 400, ms: 500, depth: 1 };
+const BOT_RANK_VAL = [11, 10, 4, 3, 2];
+const BOT_SUITS = [0x1f, 0x3e0, 0x7c00, 0xf8000];
+const botBit = c => SUITS.indexOf(c[0]) * 5 + RANKS.indexOf(c[1]);
+const botCard = i => SUITS[i / 5 | 0] + RANKS[i % 5];
+const botVal = i => BOT_RANK_VAL[i % 5];
+const lowBit = m => 31 - Math.clz32(m & -m);
+const bitCount = m => { let n = 0; for (; m; m &= m - 1) n++; return n; };
+
+/* The chance of winning the match when each side still needs a and b game points. */
+const BOT_ODDS = (() => {
+  const chance = [0, 0.5, 0.3, 0.2];
+  const odds = [];
+  const get = (a, b) => a <= 0 ? 1 : b <= 0 ? 0 : odds[a][b];
+  for (let a = 0; a <= GOAL; a++) {
+    odds[a] = [];
+    for (let b = 0; b <= GOAL; b++) {
+      if (!a || !b) continue;
+      let sum = 0;
+      for (let g = 1; g <= 3; g++) sum += chance[g] / 2 * (get(a - g, b) + get(a, b - g));
+      odds[a][b] = sum;
+    }
+  }
+  return get;
+})();
+
+let botMe = 0, botWorth = [[], []];
+
+function botSetWorth(p) {
+  const a = Math.max(GOAL - S.gp[p], 1), b = Math.max(GOAL - S.gp[1 - p], 1);
+  for (let g = 1; g <= 3; g++) {
+    botWorth[p][g] = BOT_ODDS(a - g, b);
+    botWorth[1 - p][g] = BOT_ODDS(a, b - g);
+  }
+  botMe = p;
+}
+
+const botWin = (w, win) => {
+  const l = 1 - win;
+  return botWorth[win][w.tricks[l] === 0 ? 3 : w.pts[l] < 33 ? 2 : 1];
+};
+const botCloseFailed = (w, win) => botWorth[win][w.closedOpp === 0 ? 3 : 2];
+const botClaim = (w, p) => w.closed === 1 - p ? botCloseFailed(w, p) : botWin(w, p);
+
+function botLast(w, win) {
+  if (w.closed >= 0) return w.closed === win && w.pts[win] >= 66 ? botWin(w, win) : botCloseFailed(w, 1 - w.closed);
+  return w.pts[win] >= 66 ? botWin(w, win) : botWorth[win][1];
+}
+
+function botLegal(w, r, lead) {
+  const hand = w.h[r];
+  if (w.closed < 0 && w.sp < w.stock.length) return hand;
+  const same = hand & BOT_SUITS[lead / 5 | 0];
+  if (same) return same & ((1 << lead) - 1) || same;
+  return hand & BOT_SUITS[w.trump] || hand;
+}
+
+const botBeats = (w, lead, reply) => (lead / 5 | 0) === (reply / 5 | 0) ? reply < lead : (reply / 5 | 0) === w.trump;
+
+/* Plays a reply and the rest of the hand, then puts everything back. */
+function botTrick(w, l, lead, reply, depth, lo, hi) {
+  const r = 1 - l;
+  const win = botBeats(w, lead, reply) ? r : l, lose = 1 - win;
+  const pts = w.pts[win], pend = w.pend[win];
+  w.h[r] ^= 1 << reply;
+  if (w.tricks[win]++ === 0) { w.pts[win] += pend; w.pend[win] = 0; }
+  w.pts[win] += botVal(lead) + botVal(reply);
+  const drew = w.closed < 0 && w.sp < w.stock.length;
+  const handW = w.h[win], handL = w.h[lose];
+  if (drew) {
+    w.h[win] |= 1 << w.stock[w.sp];
+    w.h[lose] |= 1 << w.stock[w.sp + 1];
+    w.sp += 2;
+  }
+  const v = w.h[win] ? botLead(w, win, depth - 1, lo, hi) : botLast(w, win);
+  if (drew) w.sp -= 2;
+  w.h[win] = handW;
+  w.h[lose] = handL;
+  w.h[r] ^= 1 << reply;
+  w.tricks[win]--;
+  w.pts[win] = pts;
+  w.pend[win] = pend;
+  return v;
+}
+
+function botReply(w, l, lead, depth, lo, hi) {
+  const r = 1 - l, maxing = r === botMe;
+  let best = maxing ? -1 : 2;
+  for (let m = botLegal(w, r, lead); m; m &= m - 1) {
+    const v = botTrick(w, l, lead, lowBit(m), depth, lo, hi);
+    if (maxing) { if (v > best) best = v; if (v > lo) lo = v; } else { if (v < best) best = v; if (v < hi) hi = v; }
+    if (lo >= hi) break;
+  }
+  return best;
+}
+
+/* Leading one card, with its marriage if the partner is in hand. */
+function botLeadCard(w, l, i, depth, lo, hi) {
+  const rankIdx = i % 5;
+  const partner = rankIdx === 2 ? i + 1 : rankIdx === 3 ? i - 1 : -1;
+  const married = partner >= 0 && w.h[l] >> partner & 1;
+  const add = married ? ((i / 5 | 0) === w.trump ? 40 : 20) : 0;
+  const first = w.tricks[l] === 0;
+  if (first) w.pend[l] += add; else w.pts[l] += add;
+  let v;
+  if (add && !first && w.pts[l] >= 66) v = botClaim(w, l);
+  else {
+    w.h[l] ^= 1 << i;
+    v = botReply(w, l, i, depth, lo, hi);
+    w.h[l] ^= 1 << i;
+  }
+  if (first) w.pend[l] -= add; else w.pts[l] -= add;
+  return v;
+}
+
+function botLead(w, l, depth, lo, hi) {
+  if (w.pts[l] >= 66) return botClaim(w, l);
+  const open = w.closed < 0 && w.sp < w.stock.length;
+  if (open && depth <= 0) return botRollout(w, l);
+  const maxing = l === botMe;
+  let best = maxing ? -1 : 2;
+  if (open) {
+    w.closed = l;
+    w.closedOpp = w.tricks[1 - l];
+    best = botLead(w, l, 0, lo, hi);
+    w.closed = -1;
+    if (maxing) { if (best > lo) lo = best; } else if (best < hi) hi = best;
+    if (lo >= hi) return best;
+  }
+  for (let m = w.h[l]; m; m &= m - 1) {
+    const v = botLeadCard(w, l, lowBit(m), depth, lo, hi);
+    if (maxing) { if (v > best) best = v; if (v > lo) lo = v; } else { if (v < best) best = v; if (v < hi) hi = v; }
+    if (lo >= hi) break;
+  }
+  return best;
+}
+
+/* Beyond the search depth both sides play by simple habits until the stock is gone or closed, then exactly. */
+const botRun = { h: [0, 0], stock: null, sp: 0, pts: [0, 0], pend: [0, 0], tricks: [0, 0], closed: -1, closedOpp: 0, trump: 0 };
+
+function botRollout(w, first) {
+  const R = botRun;
+  R.h[0] = w.h[0]; R.h[1] = w.h[1];
+  R.pts[0] = w.pts[0]; R.pts[1] = w.pts[1];
+  R.pend[0] = w.pend[0]; R.pend[1] = w.pend[1];
+  R.tricks[0] = w.tricks[0]; R.tricks[1] = w.tricks[1];
+  R.stock = w.stock; R.sp = w.sp; R.closed = w.closed; R.closedOpp = w.closedOpp; R.trump = w.trump;
+  let gone = (1 << 20) - 1 & ~(R.h[0] | R.h[1]);
+  for (let i = R.sp; i < R.stock.length; i++) gone &= ~(1 << R.stock[i]);
+  let l = first;
+  for (;;) {
+    if (R.pts[l] >= 66) return botClaim(R, l);
+    if (R.sp >= R.stock.length) return botLead(R, l, 0, -1, 2);
+    if (botHabitClose(R, l, gone)) {
+      R.closed = l;
+      R.closedOpp = R.tricks[1 - l];
+      return botLead(R, l, 0, -1, 2);
+    }
+    const lead = botHabitLead(R, l);
+    if (lead < 0) return botClaim(R, l);
+    const r = 1 - l;
+    R.h[l] ^= 1 << lead;
+    const reply = botHabitReply(R, r, lead);
+    R.h[r] ^= 1 << reply;
+    const win = botBeats(R, lead, reply) ? r : l;
+    gone |= 1 << lead | 1 << reply;
+    if (R.tricks[win]++ === 0) { R.pts[win] += R.pend[win]; R.pend[win] = 0; }
+    R.pts[win] += botVal(lead) + botVal(reply);
+    R.h[win] |= 1 << R.stock[R.sp];
+    R.h[1 - win] |= 1 << R.stock[R.sp + 1];
+    R.sp += 2;
+    l = win;
+  }
+}
+
+function botHabitClose(R, l, gone) {
+  const hand = R.h[l], suitBits = BOT_SUITS[R.trump];
+  const rivals = suitBits & ~hand & ~gone;
+  let total = R.pts[l], sure = 0;
+  for (let m = hand & suitBits; m; m &= m - 1) {
+    const i = lowBit(m);
+    if (!(rivals & ((1 << i) - 1))) { sure++; total += botVal(i) + 3; }
+  }
+  if (!sure) return false;
+  if (sure >= bitCount(rivals)) {
+    for (let m = hand & ~suitBits; m; m &= m - 1) {
+      const i = lowBit(m), high = (1 << i) - 1 & BOT_SUITS[i / 5 | 0];
+      if (!(high & ~hand & ~gone)) total += botVal(i) + 3;
+    }
+  }
+  return total >= 70;
+}
+
+/* Returns the card to lead, or -1 when a marriage has just won the hand. */
+function botHabitLead(R, l) {
+  const hand = R.h[l];
+  let pair = -1;
+  for (let s = 0; s < 4; s++) {
+    const k = s * 5 + 2, q = k + 1;
+    if (hand >> k & 1 && hand >> q & 1 && (pair < 0 || s === R.trump)) pair = s;
+  }
+  if (pair >= 0) {
+    const add = pair === R.trump ? 40 : 20;
+    if (R.tricks[l]) { R.pts[l] += add; if (R.pts[l] >= 66) return -1; } else R.pend[l] += add;
+    return pair * 5 + 3;
+  }
+  let best = -1, low = 1e9;
+  for (let m = hand; m; m &= m - 1) {
+    const i = lowBit(m);
+    const cost = botVal(i) + ((i / 5 | 0) === R.trump ? 12 : 0) + Math.random();
+    if (cost < low) { low = cost; best = i; }
+  }
+  return best;
+}
+
+function botHabitReply(R, r, lead) {
+  const hand = R.h[r], need = R.pts[r] + (R.tricks[r] ? 0 : R.pend[r]);
+  let best = -1, top = -1e9;
+  for (let m = hand; m; m &= m - 1) {
+    const i = lowBit(m);
+    const isTrump = (i / 5 | 0) === R.trump;
+    const rankIdx = i % 5;
+    const pair = (rankIdx === 2 && hand >> i + 1 & 1) || (rankIdx === 3 && hand >> i - 1 & 1) ? 9 : 0;
+    let score;
+    if (botBeats(R, lead, i)) {
+      const take = botVal(lead) + botVal(i);
+      score = need + take >= 66 ? 100 + take : take - pair - (isTrump ? 6 : 0) - (isTrump && botVal(i) >= 10 ? 6 : 0);
+    } else {
+      score = -(botVal(lead) + botVal(i)) - pair - (isTrump ? 12 : 0);
+    }
+    if (score > top) { top = score; best = i; }
+  }
+  return best;
+}
+
+/* What the table has shown about the other player's hand: cards they must hold, and cards they cannot hold. */
+function botClues(p) {
+  const o = 1 - p, open = new Set(unseen(p));
+  const known = new Set();
+  let ruledOut = 0;
+  for (const e of S.log) {
+    if (e.t === 'marriage' && e.p === o) { known.add(e.s + 'K'); known.add(e.s + 'Q'); }
+    if (e.t === 'swap' && e.p === o) known.add(e.c);
+    if (e.t === 'trick' && !e.drew && e.reply.p === o) {
+      const lead = botBit(e.lead.c), reply = botBit(e.reply.c);
+      if (suit(e.reply.c) === suit(e.lead.c)) {
+        if (reply > lead) ruledOut |= (1 << lead) - 1 & BOT_SUITS[lead / 5 | 0];
+      } else {
+        ruledOut |= BOT_SUITS[lead / 5 | 0];
+        if (suit(e.reply.c) !== S.trumpSuit) ruledOut |= BOT_SUITS[SUITS.indexOf(S.trumpSuit)];
+      }
+    }
+  }
+  return { open: [...open].map(botBit), known: [...known].filter(c => open.has(c)).map(botBit), ruledOut };
+}
+
+function botImagine(p, clues) {
+  const o = 1 - p, free = clues.open.filter(i => !clues.known.includes(i));
+  for (let i = free.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [free[i], free[j]] = [free[j], free[i]];
+  }
+  let hand = 0, need = S.hands[o].length;
+  for (const i of clues.known) { hand |= 1 << i; need--; }
+  const stock = [];
+  for (const i of free) {
+    if (need > 0 && !(clues.ruledOut >> i & 1)) { hand |= 1 << i; need--; } else stock.push(i);
+  }
+  if (S.stock.length) stock.push(botBit(S.trump));
+  const h = [0, 0];
+  h[p] = S.hands[p].reduce((m, c) => m | 1 << botBit(c), 0);
+  h[o] = hand;
+  return {
+    h, stock, sp: 0, pts: S.pts.slice(), pend: S.pending.slice(), tricks: S.tricks.slice(),
+    closed: S.closedBy === null ? -1 : S.closedBy, closedOpp: S.closedOppTricks, trump: SUITS.indexOf(S.trumpSuit)
+  };
+}
+
+/* Tries every option in the same imagined deals and keeps the one with the best chance of winning the match. */
+function botBest(p, options, tryOption) {
+  if (options.length === 1) return options[0];
+  botSetWorth(p);
+  const clues = botClues(p), totals = options.map(() => 0), stop = Date.now() + BOT.ms;
+  for (let n = 0; n < BOT.worlds && Date.now() < stop; n++) {
+    const w = botImagine(p, clues);
+    options.forEach((option, i) => { totals[i] += tryOption(w, option); });
+  }
+  return options[totals.indexOf(Math.max(...totals))];
+}
+
+function botPlanLead(p) {
+  const options = [];
+  for (const c of S.hands[p]) {
+    const married = (rank(c) === 'K' || rank(c) === 'Q') && S.hands[p].includes(suit(c) + (rank(c) === 'K' ? 'Q' : 'K'));
+    options.push({ close: false, marry: married ? suit(c) : null, card: c });
+    if (canClose(p)) options.push({ close: true, marry: married ? suit(c) : null, card: c });
+  }
+  return botBest(p, options, (w, option) => {
+    if (option.close) { w.closed = p; w.closedOpp = w.tricks[1 - p]; }
+    const v = botLeadCard(w, p, botBit(option.card), BOT.depth, -1, 2);
+    if (option.close) w.closed = -1;
+    return v;
+  });
+}
+
+function botPlanReply(p) {
+  const lead = botBit(S.table[0].c);
+  return botBest(p, legal(p), (w, c) => botTrick(w, 1 - p, lead, botBit(c), BOT.depth, -1, 2));
 }
 
 /* ---------- Pacing ---------- */
@@ -1256,8 +1578,8 @@ function renderPile(p, id) {
   }).join('');
   el.classList.toggle('empty', !cards.length);
   const count = S.won[p].length;
-  el.setAttribute('aria-label', L().pileAria(p, mode === 'hard' ? '?' : count));
-  const canOpen = p === YOU ? mode !== 'hard' : mode === 'easy';
+  el.setAttribute('aria-label', L().pileAria(p, blind() ? '?' : count));
+  const canOpen = p === YOU ? !blind() : mode === 'easy';
   el.disabled = !count || !canOpen;
   el.title = !canOpen ? '' : p === YOU ? L().pileTitle : L().pileTitleCpu;
 }
@@ -1333,7 +1655,7 @@ function promptText() {
     return strict() ? L().replyStrict(S.table[0].c) : L().replyFree(S.table[0].c);
   }
   if (S.declared) return L().leadDeclared;
-  if (mode !== 'hard' && S.pts[YOU] >= 66) return L().claimHint(S.pts[YOU]);
+  if (!blind() && S.pts[YOU] >= 66) return L().claimHint(S.pts[YOU]);
   return L().yourLead;
 }
 
@@ -1343,9 +1665,9 @@ function render() {
 
   $('oppHand').innerHTML = S.hands[CPU].map(() => cardBack()).join('');
   $('oppInfo').textContent = mode === 'easy' ? L().oppInfoEasy(S.pts[CPU], S.pending[CPU], S.tricks[CPU])
-    : mode === 'hard' ? L().oppInfoHard()
+    : blind() ? L().oppInfoHard()
     : L().oppInfo(S.tricks[CPU]);
-  $('oppMarks').innerHTML = mode === 'hard' ? '' : S.log.filter(e => e.t === 'marriage' && e.p === CPU).map(e => {
+  $('oppMarks').innerHTML = blind() ? '' : S.log.filter(e => e.t === 'marriage' && e.p === CPU).map(e => {
     const label = L().logMarriage(CPU, e.v, GLYPH[e.s]);
     return `<span class="marriage-chip" title="${label}" aria-label="${label}">${e.v} ${GLYPH[e.s]}</span>`;
   }).join('');
@@ -1392,7 +1714,7 @@ function render() {
   }
   if (canSwap(YOU)) acts += `<button class="btn" data-act="swap">${L().swapBtn(S.trump)}</button>`;
   if (canClose(YOU)) acts += `<button class="btn" data-act="close">${L().closeStockBtn}</button>`;
-  const ready = mode !== 'hard' && onLead(YOU) && S.pts[YOU] >= 66;
+  const ready = !blind() && onLead(YOU) && S.pts[YOU] >= 66;
   acts += `<button class="btn claim${ready ? ' ready' : ''}" data-act="claim"${onLead(YOU) ? '' : ' disabled'}>${L().claimBtn}</button>`;
   $('actions').innerHTML = acts;
 
@@ -1427,7 +1749,7 @@ let lastScore = null;
 /* Your score tag: the number, a bar towards 66 with a mark at 33, and your tricks. */
 function renderScore() {
   const pts = S.pts[YOU];
-  const visible = mode !== 'hard';
+  const visible = !blind();
   $('meInfo').setAttribute('aria-label', visible ? L().meInfo(pts, S.pending[YOU], S.tricks[YOU]) : L().scoreHint);
   $('meInfo').classList.toggle('reached', visible && pts >= 66);
   $('scoreNum').hidden = !visible;
