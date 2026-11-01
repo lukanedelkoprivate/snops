@@ -1,4 +1,4 @@
-const CACHE = 'snops-a9f26ca5903d';
+const CACHE = 'snops-de798e6fc4c8';
 const FONTS = 'snops-fonts';
 const FILES = [
   "cards/CA.jpg",
@@ -30,7 +30,9 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // 'reload' skips the browser's HTTP cache, which could otherwise hand back the previous version.
+  const fresh = FILES.map(f => new Request(f, { cache: 'reload' }));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(fresh)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -49,7 +51,13 @@ self.addEventListener('fetch', e => {
   }
   if (url.origin !== location.origin) return;
   if (e.request.mode === 'navigate') {
-    e.respondWith(fetch(e.request).catch(() => caches.match('index.html')));
+    e.respondWith(fetch(e.request.url, { cache: 'no-cache' }).then(res => {
+      if (res.ok) {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put('index.html', copy));
+      }
+      return res;
+    }).catch(() => caches.match('index.html')));
     return;
   }
   e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request)));
