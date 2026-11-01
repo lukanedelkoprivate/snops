@@ -531,7 +531,6 @@ try {
 } catch (e) {}
 
 const MODES = ['easy', 'normal', 'hard', 'extreme'];
-const blind = () => mode === 'hard' || mode === 'extreme';
 const BACKGROUNDS = ['red', 'green', 'blue', 'wood'];
 const LANGUAGES = [['en', 'English'], ['st', 'Štajerska slovenščina']];
 
@@ -625,7 +624,7 @@ const STRINGS = {
       easy: `You see your points and ${enGenLow()} points. Press ${enGenLow()} pile to see the tricks.`,
       normal: `You see your points and ${enGenLow()} 20s and 40s. ${enGen()} points and tricks stay hidden.`,
       hard: 'No points, trick counts or marks. Keep it all in your head.',
-      extreme: 'Hidden like Hard, against a much stronger opponent. Before each move it tries out hundreds of ways the unseen cards could lie. It never peeks at your hand.'
+      extreme: `You see your points, your tricks and ${enGenLow()} 20s and 40s, against a much stronger opponent. Before each move it tries out hundreds of ways the unseen cards could lie. It never peeks at your hand.`
     })[m],
     oppInfoEasy: (pts, pending, n) => `${enName()}: ${pts} points${pending ? ` (+${pending})` : ''}, ${n} ${n === 1 ? 'trick' : 'tricks'}`,
     oppInfoHard: () => enName(),
@@ -643,8 +642,8 @@ const STRINGS = {
       ['Claiming', 'You score 1 game point if your opponent has 33 or more, 2 if under 33, and 3 if they have no tricks. A wrong claim gives your opponent 2, or 3 if they have no tricks.'],
       ['No claim', 'If every trick is played and nobody claimed, the last trick wins the hand for 1 game point. A last-trick winner with 66 or more scores as if they had claimed.'],
       ['Match', 'The first player to 7 game points wins.'],
-      ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard and Extreme. At a real table you usually cannot look back. Your trumps have a gold edge.'],
-      ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Extreme hides the same things and adds a much stronger opponent, who sees only what a player at the table can see. Everything is revealed when the hand ends.']
+      ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard mode. At a real table you usually cannot look back. Your trumps have a gold edge.'],
+      ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Extreme shows the same as Normal and adds a much stronger opponent, who sees only what a player at the table can see. Everything is revealed when the hand ends.']
     ],
     bg: { red: 'Red check', green: 'Green felt', blue: 'Blue check', wood: 'Dark wood' },
     oppInfo: n => `${enName()}: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
@@ -676,7 +675,7 @@ const STRINGS = {
     swapBtn: c => `Swap jack for ${short(c)}`,
     closeStockBtn: 'Close stock',
     claimBtn: 'Claim 66',
-    wonTrick: g => blind() ? 'You won the trick.' : `You won the trick (+${g}).`,
+    wonTrick: g => mode === 'hard' ? 'You won the trick.' : `You won the trick (+${g}).`,
     cpuWonTrick: () => `${enName()} won the trick.`,
     drew: c => `You drew ${short(c)}.`,
     stockEmpty: () => 'The stock is empty, so strict rules apply.',
@@ -767,7 +766,7 @@ const STRINGS = {
       easy: `Vidiš svoje točke in točke ${stGen()}. Pritisni kup ${stGen()} in vidiš štihe.`,
       normal: `Vidiš svoje točke in 20 ali 40 ${stGen()}. Točke in štihi ${stGen()} so skriti.`,
       hard: 'Brez točk, štihov in oznak. Vse štej v glavi.',
-      extreme: 'Skrito kot pri Težko, nasprotnik pa je dosti močnejši. Pred vsako potezo preigra na stotine možnosti, kje so karte, ki jih ne vidi. V tvoje karte ne gleda.'
+      extreme: `Vidiš svoje točke, svoje štihe in 20 ali 40 ${stGen()}, nasprotnik pa je dosti močnejši. Pred vsako potezo preigra na stotine možnosti, kje so karte, ki jih ne vidi. V tvoje karte ne gleda.`
     })[m],
     oppInfoEasy: (pts, pending, n) => `${stName()}: ${pts} točk${pending ? ` (+${pending})` : ''}, ${stStihi(n)}`,
     oppInfoHard: () => stName(),
@@ -785,8 +784,8 @@ const STRINGS = {
       ['Mam 66', 'Dobiš 1 za igro, če ma nasprotnik 33 točk ali več, 2, če ma manj kot 33, in 3, če nima štiha. Če pritisneš brez 66 točk, dobi nasprotnik 2, ali 3, če nima štiha.'],
       ['Brez prijave', 'Če se odigrajo vsi štihi in nihče ne reče 66, zmaga zadnji štih in dobi 1 za igro. Kdor pobere zadnji štih in ma 66 točk ali več, dobi toliko, kot da bi prijavil.'],
       ['Igra', 'Zmaga, kdor prvi pride do 7 za igro.'],
-      ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko in Ekstremno. Tvoji aduti majo zlat rob.'],
-      ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Ekstremno skrije isto, nasprotnik pa je dosti močnejši in vidi samo to, kar vidi igralec za mizo. Na koncu partije se vidi vse.']
+      ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko. Tvoji aduti majo zlat rob.'],
+      ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Ekstremno kaže isto kot Normalno, nasprotnik pa je dosti močnejši in vidi samo to, kar vidi igralec za mizo. Na koncu partije se vidi vse.']
     ],
     bg: { red: 'Rdeč karo', green: 'Zeleno sukno', blue: 'Moder karo', wood: 'Temen les' },
     oppInfo: n => `${stName()}: ${stStihi(n)}`,
@@ -818,7 +817,7 @@ const STRINGS = {
     swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
     closeStockBtn: 'Zapri',
     claimBtn: 'Mam 66',
-    wonTrick: g => blind() ? `Toti štih si ${stG('pobral', 'pobrala')}.` : `Toti štih si ${stG('pobral', 'pobrala')} (+${g}).`,
+    wonTrick: g => mode === 'hard' ? `Toti štih si ${stG('pobral', 'pobrala')}.` : `Toti štih si ${stG('pobral', 'pobrala')} (+${g}).`,
     cpuWonTrick: () => `Toti štih je pobral ${stLower()}.`,
     drew: c => `${stG('Dobil', 'Dobila')} si ${stAcc(c)}.`,
     stockEmpty: () => 'Ni več kart, zaj velajo stroga pravila.',
@@ -1578,8 +1577,8 @@ function renderPile(p, id) {
   }).join('');
   el.classList.toggle('empty', !cards.length);
   const count = S.won[p].length;
-  el.setAttribute('aria-label', L().pileAria(p, blind() ? '?' : count));
-  const canOpen = p === YOU ? !blind() : mode === 'easy';
+  el.setAttribute('aria-label', L().pileAria(p, mode === 'hard' ? '?' : count));
+  const canOpen = p === YOU ? mode !== 'hard' : mode === 'easy';
   el.disabled = !count || !canOpen;
   el.title = !canOpen ? '' : p === YOU ? L().pileTitle : L().pileTitleCpu;
 }
@@ -1655,7 +1654,7 @@ function promptText() {
     return strict() ? L().replyStrict(S.table[0].c) : L().replyFree(S.table[0].c);
   }
   if (S.declared) return L().leadDeclared;
-  if (!blind() && S.pts[YOU] >= 66) return L().claimHint(S.pts[YOU]);
+  if (mode !== 'hard' && S.pts[YOU] >= 66) return L().claimHint(S.pts[YOU]);
   return L().yourLead;
 }
 
@@ -1665,9 +1664,9 @@ function render() {
 
   $('oppHand').innerHTML = S.hands[CPU].map(() => cardBack()).join('');
   $('oppInfo').textContent = mode === 'easy' ? L().oppInfoEasy(S.pts[CPU], S.pending[CPU], S.tricks[CPU])
-    : blind() ? L().oppInfoHard()
+    : mode === 'hard' ? L().oppInfoHard()
     : L().oppInfo(S.tricks[CPU]);
-  $('oppMarks').innerHTML = blind() ? '' : S.log.filter(e => e.t === 'marriage' && e.p === CPU).map(e => {
+  $('oppMarks').innerHTML = mode === 'hard' ? '' : S.log.filter(e => e.t === 'marriage' && e.p === CPU).map(e => {
     const label = L().logMarriage(CPU, e.v, GLYPH[e.s]);
     return `<span class="marriage-chip" title="${label}" aria-label="${label}">${e.v} ${GLYPH[e.s]}</span>`;
   }).join('');
@@ -1714,7 +1713,7 @@ function render() {
   }
   if (canSwap(YOU)) acts += `<button class="btn" data-act="swap">${L().swapBtn(S.trump)}</button>`;
   if (canClose(YOU)) acts += `<button class="btn" data-act="close">${L().closeStockBtn}</button>`;
-  const ready = !blind() && onLead(YOU) && S.pts[YOU] >= 66;
+  const ready = mode !== 'hard' && onLead(YOU) && S.pts[YOU] >= 66;
   acts += `<button class="btn claim${ready ? ' ready' : ''}" data-act="claim"${onLead(YOU) ? '' : ' disabled'}>${L().claimBtn}</button>`;
   $('actions').innerHTML = acts;
 
@@ -1749,7 +1748,7 @@ let lastScore = null;
 /* Your score tag: the number, a bar towards 66 with a mark at 33, and your tricks. */
 function renderScore() {
   const pts = S.pts[YOU];
-  const visible = !blind();
+  const visible = mode !== 'hard';
   $('meInfo').setAttribute('aria-label', visible ? L().meInfo(pts, S.pending[YOU], S.tricks[YOU]) : L().scoreHint);
   $('meInfo').classList.toggle('reached', visible && pts >= 66);
   $('scoreNum').hidden = !visible;
