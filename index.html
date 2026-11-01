@@ -140,6 +140,22 @@ header { position: relative; display: flex; align-items: center; }
 }
 .option:hover { background: var(--mat); }
 .option[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.stat-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.stat-tile { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 9px; background: var(--mat); color: #38291c; border-radius: 6px; }
+.stat-label { font-size: .8125rem; font-weight: 600; line-height: 1.2; }
+.stat-value { font: 700 2rem/1.05 var(--hand); font-variant-numeric: tabular-nums; }
+.stat-extra { font-size: .8125rem; line-height: 1.2; }
+.result h3 { margin: 6px 0 0; font: 700 .9375rem/1.25 var(--body); }
+.stat-rows { display: flex; flex-direction: column; gap: 6px; }
+.stat-row { display: grid; grid-template-columns: minmax(70px, 1fr) 3.2em minmax(50px, 2fr) 3em; align-items: center; gap: 8px; font-size: .9375rem; font-variant-numeric: tabular-nums; }
+.stat-record, .stat-percent { text-align: right; }
+.stat-bar { display: block; height: 6px; background: rgba(56, 41, 28, .15); border-radius: 3px; }
+.stat-bar span { display: block; height: 100%; background: var(--cloth); border-radius: 3px; }
+.stat-details { display: flex; flex-direction: column; margin: 0; font-size: .9375rem; }
+.stat-details div { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; border-top: 1px solid rgba(36, 26, 23, .13); }
+.stat-details dt { font-weight: 400; }
+.stat-details dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.result .stat-note { font-size: .8125rem; color: var(--ink-soft); }
 .rules-option { margin-top: 6px; text-align: center; }
 .rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; font-size: .9375rem; line-height: 1.4; }
 .rules li { display: flex; flex-direction: column; gap: 1px; }
@@ -563,6 +579,26 @@ const STRINGS = {
     settings: 'Settings',
     language: 'Language',
     background: 'Background',
+    statsTitle: 'Statistics',
+    statsEmpty: 'No finished hands yet. Play a hand and your numbers will appear here.',
+    statsNote: 'Saved on this device only. Wins and losses are shown as you to opponent.',
+    statMatches: 'Matches',
+    statHands: 'Hands',
+    statStreak: 'Match win streak',
+    statBest: n => `Best: ${n}`,
+    statWon: n => `${n}% won`,
+    statOpponents: 'Matches against each opponent',
+    statModes: 'Matches by mode',
+    statDetails: 'Details',
+    statBestHand: 'Most points in a hand',
+    statTricks: 'Tricks won',
+    statGamePoints: 'Game points, you to opponent',
+    statMarriages: 'Your marriages, 20s / 40s',
+    statCloses: 'Closes won / tried',
+    statThrees: 'Hands won for 3 game points',
+    statWrong: 'Wrong claims',
+    statsReset: 'Reset statistics',
+    statsResetConfirm: 'Press again to delete all statistics',
     modeLabel: 'Mode',
     modeName: { easy: 'Easy', normal: 'Normal', hard: 'Hard' },
     modeHint: m => ({
@@ -681,6 +717,26 @@ const STRINGS = {
     settings: 'Nastavitve',
     language: 'Jezik',
     background: 'Ozadje',
+    statsTitle: 'Statistika',
+    statsEmpty: 'Še ni končanih partij. Odigraj partijo in tukaj bodo tvoje številke.',
+    statsNote: 'Shranjeno samo na tej napravi. Zmage in porazi so napisani ti : nasprotnik.',
+    statMatches: 'Igre',
+    statHands: 'Partije',
+    statStreak: 'Igre zmagane zapored',
+    statBest: n => `Največ: ${n}`,
+    statWon: n => `${n} % zmag`,
+    statOpponents: 'Igre proti komu',
+    statModes: 'Igre po težavnosti',
+    statDetails: 'Podrobnosti',
+    statBestHand: 'Največ točk v partiji',
+    statTricks: 'Pobrani štihi',
+    statGamePoints: 'Točke za igro, ti : nasprotnik',
+    statMarriages: 'Tvoji Maš 20 / Maš 40',
+    statCloses: 'Zapri, uspešno / vse',
+    statThrees: 'Partije zmagane za 3',
+    statWrong: 'Napačni Mam 66',
+    statsReset: 'Zbriši statistiko',
+    statsResetConfirm: 'Pritisni še enkrat, da zbrišeš vse',
     modeLabel: 'Težavnost',
     modeName: { easy: 'Lahko', normal: 'Normalno', hard: 'Težko' },
     modeHint: m => ({
@@ -924,9 +980,50 @@ function resolveTrick() {
   if (!S.hands[w].length) endLastTrick(w);
 }
 
+const emptyStats = () => ({
+  matches: [0, 0], hands: [0, 0], streak: 0, bestStreak: 0, tricks: 0, gamePoints: [0, 0], bestHand: 0,
+  marriages20: 0, marriages40: 0, closes: 0, closesWon: 0, wrongClaims: 0, threes: 0, opponents: {}, modes: {}
+});
+
+function loadStats() {
+  try { return { ...emptyStats(), ...JSON.parse(localStorage.getItem('snops-stats')) }; } catch (e) { return emptyStats(); }
+}
+
+let playerStats = loadStats();
+
+function saveStats() {
+  try { localStorage.setItem('snops-stats', JSON.stringify(playerStats)); } catch (e) {}
+}
+
+function recordResult(w, gp, why, matchOver) {
+  const s = playerStats;
+  s.hands[w]++;
+  s.gamePoints[w] += gp;
+  s.tricks += S.tricks[YOU];
+  s.bestHand = Math.max(s.bestHand, S.pts[YOU]);
+  for (const e of S.log) {
+    if (e.t === 'marriage' && e.p === YOU) { if (e.v === 40) s.marriages40++; else s.marriages20++; }
+  }
+  if (S.closedBy === YOU) { s.closes++; if (w === YOU) s.closesWon++; }
+  if (why[0][0] === 'wrongClaim' && why[0][1] === YOU) s.wrongClaims++;
+  if (w === YOU && gp === 3) s.threes++;
+  if (matchOver) {
+    s.matches[w]++;
+    s.streak = w === YOU ? s.streak + 1 : 0;
+    s.bestStreak = Math.max(s.bestStreak, s.streak);
+    const name = CPU_NAMES[cpuName] ? cpuName : 'default';
+    s.opponents[name] = s.opponents[name] || [0, 0];
+    s.opponents[name][w]++;
+    s.modes[mode] = s.modes[mode] || [0, 0];
+    s.modes[mode][w]++;
+  }
+  saveStats();
+}
+
 function finish(w, gp, why) {
   S.gp[w] += gp;
   S.over = { w, gp, why, matchOver: S.gp[w] >= GOAL };
+  recordResult(w, gp, why, S.over.matchOver);
 }
 
 function normalWin(w, how) {
@@ -1345,7 +1442,8 @@ function renderSettings() {
       `<button class="option swatch-option" data-bg="${id}" aria-pressed="${id === background}"><span class="swatch" data-swatch="${id}"></span>${L().bg[id]}</button>`).join('')}</div>
     <div class="settings-label">${L().cpuNameLabel}</div>
     <div class="settings-names">${['default', ...Object.keys(CPU_NAMES)].map(id =>
-      `<button class="option" data-cpu="${id}" aria-pressed="${id === (CPU_NAMES[cpuName] ? cpuName : 'default')}">${CPU_NAMES[id] ? CPU_NAMES[id][0] : L().cpuDefault}</button>`).join('')}</div>    <button class="option rules-option" data-rules="open">${L().rulesTitle}</button>
+      `<button class="option" data-cpu="${id}" aria-pressed="${id === (CPU_NAMES[cpuName] ? cpuName : 'default')}">${CPU_NAMES[id] ? CPU_NAMES[id][0] : L().cpuDefault}</button>`).join('')}</div>    <button class="option rules-option" data-stats="open">${L().statsTitle}</button>
+    <button class="option rules-option" data-rules="open">${L().rulesTitle}</button>
     <button class="option rules-option" data-newmatch="${confirmNewMatch ? 'yes' : 'ask'}">${confirmNewMatch ? L().newMatchConfirm : L().newMatch}</button>`;
 }
 
@@ -1367,6 +1465,76 @@ function openRules() {
     <button class="btn" data-act="closeRules" id="closeRules">${L().closeBtn}</button>
   </div></div>`;
   $('closeRules').focus();
+}
+
+let confirmStatsReset = false;
+
+function statTile(label, record, extra) {
+  return `<div class="stat-tile"><div class="stat-label">${label}</div><div class="stat-value">${record}</div><div class="stat-extra">${extra}</div></div>`;
+}
+
+const winPercent = ([won, lost]) => won + lost ? Math.round(won / (won + lost) * 100) : 0;
+
+function statRows(entries) {
+  return entries.map(([label, record]) => {
+    const percent = winPercent(record);
+    return `<div class="stat-row"><span class="stat-name">${label}</span><span class="stat-record">${record[0]}–${record[1]}</span><span class="stat-bar"><span style="width: ${percent}%"></span></span><span class="stat-percent">${percent}%</span></div>`;
+  }).join('');
+}
+
+function statsHtml() {
+  const s = playerStats;
+  if (!s.hands[YOU] && !s.hands[CPU]) return `<p>${L().statsEmpty}</p>`;
+  const opponents = Object.keys(s.opponents).map(id => [CPU_NAMES[id] ? CPU_NAMES[id][0] : L().cpuDefault, s.opponents[id]]);
+  const modes = MODES.filter(id => s.modes[id]).map(id => [L().modeName[id], s.modes[id]]);
+  const details = [
+    [L().statBestHand, s.bestHand],
+    [L().statTricks, s.tricks],
+    [L().statGamePoints, `${s.gamePoints[YOU]}–${s.gamePoints[CPU]}`],
+    [L().statMarriages, `${s.marriages20} / ${s.marriages40}`],
+    [L().statCloses, `${s.closesWon} / ${s.closes}`],
+    [L().statThrees, s.threes],
+    [L().statWrong, s.wrongClaims]
+  ];
+  return `<div class="stat-tiles">
+      ${statTile(L().statMatches, `${s.matches[YOU]}–${s.matches[CPU]}`, L().statWon(winPercent(s.matches)))}
+      ${statTile(L().statHands, `${s.hands[YOU]}–${s.hands[CPU]}`, L().statWon(winPercent(s.hands)))}
+      ${statTile(L().statStreak, s.streak, L().statBest(s.bestStreak))}
+    </div>
+    ${opponents.length ? `<h3>${L().statOpponents}</h3><div class="stat-rows">${statRows(opponents)}</div>` : ''}
+    ${modes.length ? `<h3>${L().statModes}</h3><div class="stat-rows">${statRows(modes)}</div>` : ''}
+    <h3>${L().statDetails}</h3>
+    <dl class="stat-details">${details.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+    <p class="stat-note">${L().statsNote}</p>
+    <button class="btn ghost" id="resetStats">${confirmStatsReset ? L().statsResetConfirm : L().statsReset}</button>`;
+}
+
+function renderStats() {
+  $('rulesView').innerHTML = `<div class="scrim" id="rulesScrim"><div class="result wide" role="dialog" aria-modal="true" aria-label="${L().statsTitle}">
+    <h2>${L().statsTitle}</h2>
+    ${statsHtml()}
+    <button class="btn" data-act="closeRules" id="closeRules">${L().closeBtn}</button>
+  </div></div>`;
+}
+
+function openStats() {
+  settingsOpen = false;
+  confirmStatsReset = false;
+  renderSettings();
+  renderStats();
+  $('closeRules').focus();
+}
+
+function pressResetStats() {
+  if (confirmStatsReset) {
+    confirmStatsReset = false;
+    playerStats = emptyStats();
+    saveStats();
+  } else {
+    confirmStatsReset = true;
+  }
+  renderStats();
+  ($('resetStats') || $('closeRules')).focus();
 }
 
 function closeRules() {
@@ -1796,12 +1964,14 @@ window.addEventListener('resize', () => { if (spreadOpen) renderSpread(true); })
 
 document.addEventListener('click', e => {
   if (victory) { endVictory(); return; }
+  if (e.target.id === 'resetStats') { pressResetStats(); return; }
   if (e.target.id === 'rulesScrim' || e.target.id === 'closeRules') { closeRules(); return; }
   if (e.target.closest('#settingsBtn')) { setSettingsOpen(!settingsOpen); return; }
   if (settingsOpen) {
     const option = e.target.closest('.option');
     if (option && option.dataset.newmatch === 'yes') startNewMatch();
     else if (option && option.dataset.newmatch) { confirmNewMatch = true; renderSettings(); }
+    else if (option && option.dataset.stats) openStats();
     else if (option && option.dataset.rules) openRules();
     else if (option && option.dataset.mode) setMode(option.dataset.mode);
     else if (option && option.dataset.cpu) setCpuName(option.dataset.cpu);
