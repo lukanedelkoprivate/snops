@@ -342,7 +342,40 @@ button.card.illegal { filter: brightness(.62); }
 .score-pending { font-size: .8125rem; line-height: 1.1; }
 .score-tag.reached .score-num { color: var(--heart); }
 .score-tag.reached .score-fill { background: var(--heart); }
-.opp-info { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.opp-info { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+.quip {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(84vw, 340px);
+  padding: 6px 14px 7px;
+  background: #fff8e8;
+  color: #38291c;
+  font-family: var(--hand);
+  font-size: 1.125rem;
+  line-height: 1.25;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
+  pointer-events: none;
+  transform: translateX(-50%) rotate(-1deg);
+  animation: quip-in .22s ease-out;
+}
+.quip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -7px;
+  border: 7px solid transparent;
+  border-top: 0;
+  border-bottom-color: #fff8e8;
+}
+@keyframes quip-in { from { opacity: 0; scale: .85; } to { opacity: 1; scale: 1; } }
+@media (prefers-reduced-motion: reduce) { .quip { animation: none; } }
+.result-quip { font-family: var(--hand); font-size: 1.125rem; }
 .opp-marks { display: flex; gap: 6px; }
 .opp-marks:empty { display: none; }
 .marriage-chip {
@@ -470,6 +503,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
     <div class="opp-info">
       <div class="row-label" id="oppInfo"></div>
       <div class="opp-marks" id="oppMarks"></div>
+      <div class="quip" id="quip" role="status" hidden></div>
     </div>
   </section>
   <section class="mid">
@@ -843,6 +877,20 @@ const STRINGS = {
     get defeatTitle() { return `${stName()} je zmagal toto igro`; },
     defeatSad: 'Drugič bo bolje…',
     get victoryTitle() { return `Ti si ${stG('zmagal', 'zmagala')} toto igro!`; },
+    get quips() {
+      return {
+        cpuTrick: ['Vijiš zaj.', 'Zaj pa maš, ko nimaš!', 'Priji pa viji.', 'Čuj ti ej!', 'Te pa tak.'],
+        youTrick: ['Nea guši.', 'Nea boji.', 'Ha?', 'Ka te s tabo je?', stG('Stari…', 'Stara…'), 'Ko pa take čujem.'],
+        cpuMarriage: ['Tak bom reko.', 'Pa to sn malo reko.', `Ti boš zaj ${stG('govoro', 'govorila')}?`],
+        youMarriage: ['Ti pa vse vun zlapaš.', 'Kaj se te vun mečeš?', 'Nea funflaj.', 'Kaj cinclaš?'],
+        cpuClose: ['Zaj pa panika ne.', 'Te pa je tak vse nareto.', 'Se pa te ka pa te.'],
+        youClose: ['Ha?', 'Ka te jaz vem.', `Se oš ${stG('sam', 'sama')} al te jaz?`, 'Čuj ti ej!'],
+        cpuHand: ['Adijo si.', 'Gotof je.', 'Dobro je za koga je.', 'Pa škoda ne.', `${stG('Glavni', 'Glavna')} si.`],
+        youHand: ['Nea boji taki gustek.', 'Iskre pluvam.', 'Ki te si ti.', 'Ka te jaz vem.'],
+        cpuMatch: ['Adijo si.', 'Domu si ga peli.', 'Gotof je.', 'Dobro je za koga je.'],
+        youMatch: ['Iskre pluvam.', 'Mooo ki si.', `${stG('Glavni', 'Glavna')} si.`, 'Nea boji taki gustek.']
+      };
+    },
     victoryHint: 'Klikni za naprej',
     gain: (p, n) => `${stIs(p, `${stG('Dobil', 'Dobila')} si`, `${stName()} je dobil`)} ${n} za igro.`,
     tallyYou: 'Tvoje točke v partiji',
@@ -1542,11 +1590,46 @@ function step() {
   if (S.table.length === 2) {
     timer = setTimeout(() => {
       flyTrickToPile();
-      timer = setTimeout(() => { resolveTrick(); render(); step(); }, reducedMotion() ? 0 : 600);
+      timer = setTimeout(() => {
+        resolveTrick();
+        render();
+        const trick = S.log[S.log.length - 1];
+        if (!S.over) speak(trick.w === CPU ? 'cpuTrick' : 'youTrick', trick.gain >= 20 ? 0.7 : 0.2);
+        step();
+      }, reducedMotion() ? 0 : 600);
     }, 3200);
   } else if (S.turn === CPU) {
-    timer = setTimeout(() => { cpuAct(CPU); render(); step(); }, S.announce ? 3000 : 800);
+    timer = setTimeout(cpuMove, S.announce ? 3000 : 800);
   }
+}
+
+function cpuMove() {
+  const announcing = S.announce, closed = S.closedBy;
+  cpuAct(CPU);
+  render();
+  if (S.closedBy !== closed) speak('cpuClose');
+  else if (announcing && !S.announce) speak('cpuMarriage', 0.7);
+  step();
+}
+
+/* ---------- The computer's remarks, in Štajerska slovenščina only ---------- */
+
+let quipTimer = null, lastQuip = '';
+
+function pickQuip(moment) {
+  const list = STRINGS.st.quips[moment];
+  const fresh = list.filter(q => q !== lastQuip);
+  lastQuip = fresh[Math.floor(Math.random() * fresh.length)];
+  return lastQuip;
+}
+
+function speak(moment, chance = 1) {
+  if (lang !== 'st' || Math.random() >= chance) return;
+  const el = $('quip');
+  el.textContent = pickQuip(moment);
+  el.hidden = false;
+  clearTimeout(quipTimer);
+  quipTimer = setTimeout(() => { el.hidden = true; }, 2800);
 }
 
 /* ---------- Rendering ---------- */
@@ -2085,9 +2168,13 @@ function renderOver() {
   if (!S.over) { $('over').innerHTML = ''; return; }
   const { w, gp, why, matchOver } = S.over;
   const title = matchOver ? L().matchWin(w) : L().handWin(w);
+  // Picked once per hand, so changing a setting on this screen does not change the remark.
+  const moment = (w === CPU ? 'cpu' : 'you') + (matchOver ? 'Match' : 'Hand');
+  S.over.quip = S.over.quip ?? Math.floor(Math.random() * STRINGS.st.quips[moment].length);
   $('over').innerHTML = `<div class="scrim"><div class="result" role="dialog" aria-modal="true" aria-label="${title}">
     <h2>${title}</h2>
     <p>${entriesText(why)}</p>
+    ${lang === 'st' ? `<p class="result-quip">${stName()}: „${STRINGS.st.quips[moment][S.over.quip]}“</p>` : ''}
     <p class="gain">${L().gain(w, gp)}</p>
     <div class="tally">
       <span>${L().tallyYou}</span><span>${S.pts[YOU]}</span>
@@ -2337,7 +2424,7 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('#spreadBox')) { closeSpread(); return; }
   if (e.target.id === 'tricksScrim') { setView(null); return; }
-  if (S.announce && e.target.closest('#announceBox')) { cpuAct(CPU); render(); step(); return; }
+  if (S.announce && e.target.closest('#announceBox')) { cpuMove(); return; }
   const b = e.target.closest('[data-act],[data-card]');
   if (!b || b.disabled) return;
   // Looking at tricks never touches the game, so the computer's pending move keeps its timing.
@@ -2366,10 +2453,12 @@ document.addEventListener('click', e => {
     } else if (act === 'close' && canClose(YOU)) {
       closeStock(YOU);
       S.note = [['closed', YOU]];
+      speak('youClose');
     } else if (act === 'declare') {
       S.noteBeforeDeclare = S.note;
       declare(YOU, b.dataset.suit);
       S.note = [['declared', YOU, marriageValue(b.dataset.suit), GLYPH[b.dataset.suit]]];
+      speak('youMarriage', 0.6);
     } else if (act === 'undeclare' && S.declared && onLead(YOU)) {
       cancelDeclare(YOU);
       S.note = S.noteBeforeDeclare || [];
