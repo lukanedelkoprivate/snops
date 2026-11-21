@@ -876,7 +876,7 @@ const STRINGS = {
       ['Match', 'The first player to 7 game points wins.'],
       ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard mode. At a real table you usually cannot look back. Your trumps have a gold edge.'],
       ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Extreme shows the same as Normal and adds a much stronger opponent, who sees only what a player at the table can see. Everything is revealed when the hand ends.'],
-      ['Jokers', 'Win three hands in a row, or unlock an achievement, to earn a joker. You can hold up to 3. A joker takes back your last card, even when that card lost you the hand. The computer gets no jokers.']
+      ['Jokers', 'Win three hands in a row, or unlock an achievement, to earn a joker. You can hold up to 3. A joker takes back your last move (a card, Claim 66, closing or the trump swap), even when that move lost you the hand. The computer gets no jokers.']
     ],
     bg: { red: 'Red check', green: 'Green felt', blue: 'Blue check', wood: 'Dark wood' },
     oppInfo: n => `${enName()}: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
@@ -943,13 +943,23 @@ const STRINGS = {
     jokerName: 'Joker',
     jokerWon: n => n === 1 ? 'You won a joker!' : `You won ${n} jokers!`,
     jokerWhy: (streak, achs) => [streak ? 'Three hands in a row' : '', ...achs.map(t => `Achievement: ${t}`)].filter(Boolean).join(' · ') + '.',
-    jokerWonSub: 'Use it to take back your last card.',
+    jokerWonSub: 'Use it to take back your last move.',
     jokerToGo: k => `${k} more ${k === 1 ? 'hand' : 'hands'} in a row for a joker.`,
     jokerUse: 'Use a joker',
     jokerAskTitle: 'Use a joker?',
-    jokerAskText: n => `Your last card goes back into your hand, as if you had not played it. You have ${n} ${n === 1 ? 'joker' : 'jokers'}.`,
+    jokerAskText: (n, [kind, c]) => `${{
+      card: `The ${c && EN_RANK[rank(c)] + GLYPH[suit(c)]} you played goes back into your hand.`,
+      claim: 'Your Claim 66 is taken back.',
+      close: 'The stock opens again.',
+      swap: 'The trump jack swap is taken back.'
+    }[kind]} You have ${n} ${n === 1 ? 'joker' : 'jokers'}.`,
     jokerCancel: 'Cancel',
-    jokerUsed: () => 'Joker! Your last card is back in your hand.',
+    jokerUsed: (kind, c) => 'Joker! ' + {
+      card: `Your ${c && EN_RANK[rank(c)] + GLYPH[suit(c)]} is back in your hand.`,
+      claim: 'Your Claim 66 is taken back.',
+      close: 'The stock is open again.',
+      swap: 'The trump jack swap is taken back.'
+    }[kind],
     swapBtn: c => `Swap jack for ${short(c)}`,
     closeStockBtn: 'Close stock',
     claimBtn: 'Claim 66',
@@ -1064,7 +1074,7 @@ const STRINGS = {
       ['Igra', 'Zmaga, kdor prvi pride do 7 za igro.'],
       ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko. Tvoji aduti majo zlat rob.'],
       ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Ekstremno kaže isto kot Normalno, nasprotnik pa je dosti močnejši in vidi samo to, kar vidi igralec za mizo. Na koncu partije se vidi vse.'],
-      ['Džoker', 'Za tri zmagane partije zapored ali za nov dosežek dobiš džokerja. Največ jih lahko maš 3. Z njim vzameš nazaj svojo zadnjo karto, tudi če si zaradi nje zgubo partijo. Računalnik nima džokerjev.']
+      ['Džoker', 'Za tri zmagane partije zapored ali za nov dosežek dobiš džokerja. Največ jih lahko maš 3. Z njim vzameš nazaj svojo zadnjo potezo (karto, Mam 66, zapiranje ali menjavo), tudi če si zaradi nje zgubo partijo. Računalnik nima džokerjev.']
     ],
     bg: { red: 'Rdeč karo', green: 'Zeleno sukno', blue: 'Moder karo', wood: 'Temen les' },
     oppInfo: n => `${stName()}: ${stStihi(n)}`,
@@ -1131,13 +1141,23 @@ const STRINGS = {
     jokerName: 'Džoker',
     jokerWon: n => `${stG('Dobil', 'Dobila')} si ${['', 'džokerja', 'dva džokerja', 'tri džokerje'][n]}!`,
     jokerWhy: (streak, achs) => [streak ? 'Tri partije zapored' : '', ...achs.map(t => `Dosežek: ${t}`)].filter(Boolean).join(' · ') + '.',
-    jokerWonSub: 'Z njim lahko vzameš nazaj zadnjo karto.',
+    jokerWonSub: 'Z njim lahko vzameš nazaj zadnjo potezo.',
     jokerToGo: k => k === 1 ? 'Še ena partija zapored do džokerja.' : 'Še dve partiji zapored do džokerja.',
     jokerUse: 'Porabi džokerja',
     jokerAskTitle: 'Porabiš džokerja?',
-    jokerAskText: n => `Karta, ki si jo ${stG('vrgo', 'vrgla')} nazadnje, gre nazaj v roko. ${['', 'Maš enega džokerja.', 'Maš dva džokerja.', 'Maš tri džokerje.'][n]}`,
+    jokerAskText: (n, [kind, c]) => `${{
+      card: () => `${stCap(stNom(c))} gre nazaj v roko.`,
+      claim: () => 'Mam 66 se prekliče.',
+      close: () => 'Kup se spet odpre.',
+      swap: () => 'Menjava aduta se prekliče.'
+    }[kind]()} ${['', 'Maš enega džokerja.', 'Maš dva džokerja.', 'Maš tri džokerje.'][n]}`,
     jokerCancel: 'Prekliči',
-    jokerUsed: () => 'Džoker! Karta je spet v tvoji roki.',
+    jokerUsed: (kind, c) => 'Džoker! ' + {
+      card: () => `${stCap(stAcc(c))} maš spet v roki.`,
+      claim: () => 'Mam 66 je preklicano.',
+      close: () => 'Kup je spet odprt.',
+      swap: () => 'Menjava aduta je preklicana.'
+    }[kind](),
     swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
     closeStockBtn: 'Zapri',
     claimBtn: 'Mam 66',
@@ -2575,7 +2595,7 @@ let view = null;
 let marriageAsk = null;
 let lastMove = null, jokerAsking = false;
 
-/* A joker takes back your last card in this hand. A hand you won has nothing to take back. */
+/* A joker takes back your last move in this hand. A hand you won has nothing to take back. */
 const canUndo = () => !!lastMove && lastMove.jokers > 0 && !(S.over && S.over.w === YOU)
   && JSON.stringify(lastMove.S.log[0]) === JSON.stringify(S.log[0]);
 
@@ -2583,7 +2603,7 @@ function askJoker() {
   jokerAsking = true;
   $('confirm').innerHTML = `<div class="scrim"><div class="result" role="alertdialog" aria-modal="true" aria-labelledby="jokerTitle" aria-describedby="jokerText">
     <h2 id="jokerTitle"><span class="joker-icon" aria-hidden="true">★</span> ${L().jokerAskTitle}</h2>
-    <p id="jokerText">${L().jokerAskText(rewards.jokers)}</p>
+    <p id="jokerText">${L().jokerAskText(rewards.jokers, lastMove.what)}</p>
     <div class="confirm-acts">
       <button class="btn" data-act="jokerYes">${L().jokerUse}</button>
       <button class="btn ghost" data-act="jokerNo">${L().jokerCancel}</button>
@@ -2597,7 +2617,7 @@ function closeJokerAsk() {
   $('confirm').innerHTML = '';
 }
 
-/* Everything returns to the moment before your last card: the hand, the score, the statistics and the streak. */
+/* Everything returns to the moment before your last move: the hand, the score, the statistics and the streak. */
 function useJoker() {
   if (!canUndo()) return;
   clearTimeout(timer);
@@ -2611,8 +2631,8 @@ function useJoker() {
   rewards.jokers = lastMove.jokers - 1;
   rewards.streak = lastMove.streak;
   saveRewards();
+  S.note = [['jokerUsed', ...lastMove.what]];
   lastMove = null;
-  S.note = [['jokerUsed']];
   S.newCard = null;
   $('quip').hidden = true;
   if (view) setView(null);
@@ -2716,8 +2736,16 @@ function closeMarriageAsk() {
   return card;
 }
 
+/* Remembers the game as it is now, so a joker can return to it. Taken before each of your moves. */
+function rememberMove(kind, card) {
+  lastMove = {
+    S: JSON.parse(JSON.stringify(S)), stats: JSON.stringify(playerStats), streak: rewards.streak, jokers: rewards.jokers,
+    ach: JSON.stringify(ach), what: [kind, card]
+  };
+}
+
 function playYourCard(card) {
-  lastMove = { S: JSON.parse(JSON.stringify(S)), stats: JSON.stringify(playerStats), streak: rewards.streak, jokers: rewards.jokers, ach: JSON.stringify(ach) };
+  rememberMove('card', card);
   S.note = [];
   S.newCard = null;
   S.marriageAlert = false;
@@ -3091,13 +3119,15 @@ document.addEventListener('click', e => {
     const act = b.dataset.act;
     if (act === 'next') { S.dealer = 1 - S.dealer; deal(); }
     else if (act === 'match') newMatch();
-    else if (act === 'claim' && onLead(YOU)) claim(YOU);
+    else if (act === 'claim' && onLead(YOU)) { rememberMove('claim'); claim(YOU); }
     else if (act === 'swap' && canSwap(YOU)) {
+      rememberMove('swap');
       const taken = S.trump;
       swapTrump(YOU);
       S.newCard = taken;
       S.note = [['swapped', YOU, taken]];
     } else if (act === 'close' && canClose(YOU)) {
+      rememberMove('close');
       closeStock(YOU);
       S.note = [['closed', YOU]];
       speak('youClose');
