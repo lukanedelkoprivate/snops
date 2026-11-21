@@ -476,6 +476,29 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 .result .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink-soft); font-size: .875rem; padding: 4px 10px; min-height: 36px; align-self: auto; }
 .result .btn.ghost:hover:not(:disabled) { background: var(--mat); color: var(--ink); }
 .confirm-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.header-mid { display: flex; gap: 8px; }
+.coin {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff0b8 0 12%, #f3c54c 38%, #c48f16 72%, #8f6408);
+  box-shadow: inset 0 0 0 .12em rgba(255, 240, 184, .55), inset 0 0 0 .22em rgba(143, 100, 8, .35), 0 1px 2px rgba(0, 0, 0, .35);
+  vertical-align: -.2em;
+}
+.purse-btn { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.purse-btn[data-level="2"] .coin, .purse-btn[data-level="3"] .coin, .purse-btn[data-level="4"] .coin { box-shadow: inset 0 0 0 .12em rgba(255, 240, 184, .55), 0 0 8px rgba(255, 210, 90, .8); }
+.purse-num { font-weight: 700; }
+.coin.flying, .coin.rain { position: fixed; left: 0; top: 0; z-index: 80; width: 20px; height: 20px; margin: -10px 0 0 -10px; pointer-events: none; }
+.coin.rain { width: 26px; height: 26px; top: 0; margin: 0; }
+.coin.big { width: 40px; height: 40px; }
+.coin.huge { width: 64px; height: 64px; }
+.purse-hero { display: flex; align-items: center; gap: 16px; padding: 10px 14px; background: var(--mat); color: #38291c; border-radius: 8px; }
+.purse-total { font: 400 2.25rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.purse-total span { font: 600 1rem var(--body); }
+.purse-level { margin-top: 4px; font-weight: 700; color: #9c6d12; }
+.bars-icon { display: none; width: 14px; height: 13px; background: linear-gradient(currentColor, currentColor) 0 100% / 3px 6px no-repeat, linear-gradient(currentColor, currentColor) 5px 100% / 3px 13px no-repeat, linear-gradient(currentColor, currentColor) 10px 100% / 3px 9px no-repeat; }
 .header-right { display: flex; gap: 8px; }
 .joker-prog { font-size: .75rem; font-weight: 600; opacity: .8; margin-left: 2px; }
 .medal {
@@ -549,7 +572,10 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 @media (max-width: 520px) {
   header { gap: 6px; }
   .header-right { gap: 6px; }
-  #achBtn .btn-label, #settingsBtn .btn-label { display: none; }
+  #achBtn .btn-label, #settingsBtn .btn-label, #statsBtn .btn-label, #achBtn .ach-btn-count { display: none; }
+  .header-mid { gap: 6px; }
+  .joker-prog { display: none; }
+  #statsBtn .bars-icon { display: inline-block; }
 }
 .joker-btn { font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px; }
 .joker-icon {
@@ -684,7 +710,10 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 <div class="app">
   <header>
     <button class="btn settings-btn" id="settingsBtn" aria-expanded="false" aria-controls="settingsPanel"></button>
-    <button class="btn settings-btn joker-btn" id="jokerBtn" data-act="joker"></button>
+    <div class="header-mid">
+      <button class="btn settings-btn joker-btn" id="jokerBtn" data-act="joker"></button>
+      <button class="btn settings-btn purse-btn" id="purseBtn"></button>
+    </div>
     <div class="header-right">
       <button class="btn settings-btn" id="achBtn"></button>
       <button class="btn settings-btn" id="statsBtn"></button>
@@ -828,6 +857,26 @@ const STRINGS = {
     language: 'Language',
     background: 'Background',
     statsTitle: 'Statistics',
+    purseTitle: 'Your purse',
+    purseAria: n => `Purse: ${n} krajcars`,
+    coins: 'krajcars',
+    purseLevels: ['Little pouch', 'Pouch', 'Chest', 'Treasury', 'Royal treasury'],
+    purseNext: (n, name) => `${n} more to ${name}`,
+    purseTop: 'The biggest purse there is.',
+    purseLevelUp: 'Your purse grew!',
+    purseHow: 'How you earn krajcars',
+    purseRules: [
+      ['Each trick you take', 'its card points'],
+      ['Your 20 or 40', '20 or 40'],
+      ['A hand you win', '25 for each game point'],
+      ['Closing and winning', '+50'],
+      ['A match you win', '+150'],
+      ['Three hands in a row', '+50'],
+      ['A new achievement', '+50'],
+      ['Hard and Extreme', '×1.5 and ×2']
+    ],
+    purseNote: 'You can never lose krajcars. Saved on this device only.',
+    statCoins: 'Krajcars earned',
     statsEmpty: 'No finished hands yet. Play a hand and your numbers will appear here.',
     statsNote: 'Saved on this device only. Wins and losses are shown as you to opponent.',
     statMatches: 'Matches',
@@ -1026,6 +1075,26 @@ const STRINGS = {
     language: 'Jezik',
     background: 'Ozadje',
     statsTitle: 'Statistika',
+    purseTitle: 'Tvoja mošnja',
+    purseAria: n => `Mošnja: ${n} krajcarjev`,
+    coins: 'krajcarjev',
+    purseLevels: ['Mošnjiček', 'Mošnja', 'Skrinja', 'Zakladnica', 'Kraljeva zakladnica'],
+    purseNext: (n, name) => `Še ${n} do: ${name}`,
+    purseTop: 'Večje mošnje ni.',
+    purseLevelUp: 'Mošnja se ti je povečala!',
+    purseHow: 'Kak dobiš krajcarje',
+    purseRules: [
+      ['Vsak štih, ki ga pobereš', 'toliko, kot je točk v njem'],
+      ['Tvoj 20 ali 40', '20 ali 40'],
+      ['Zmagana partija', '25 za vsako točko za igro'],
+      ['Zapreš in zmagaš', '+50'],
+      ['Zmagana igra', '+150'],
+      ['Tri partije zapored', '+50'],
+      ['Nov dosežek', '+50'],
+      ['Težko in Ekstremno', '×1,5 in ×2']
+    ],
+    purseNote: 'Krajcarjev ne moreš zgubiti. Shranjeni so samo na tej napravi.',
+    statCoins: 'Zasluženi krajcarji',
     statsEmpty: 'Še ni končanih partij. Odigraj partijo in tukaj bodo tvoje številke.',
     statsNote: 'Shranjeno samo na tej napravi. Zmage in porazi so napisani ti : nasprotnik.',
     statMatches: 'Igre',
@@ -1315,6 +1384,7 @@ function closeStock(p) {
 function declare(p, s) {
   const v = marriageValue(s);
   if (S.tricks[p] > 0) S.pts[p] += v; else S.pending[p] += v;
+  if (p === YOU) earn(v, '#hand');
   S.declared = s;
   S.log.push({ t: 'marriage', p, s, v });
 }
@@ -1322,6 +1392,7 @@ function declare(p, s) {
 function cancelDeclare(p) {
   const v = marriageValue(S.declared);
   if (S.tricks[p] > 0) S.pts[p] -= v; else S.pending[p] -= v;
+  if (p === YOU) earn(-v, null);
   S.declared = null;
   S.log.pop();
 }
@@ -1344,6 +1415,7 @@ function resolveTrick() {
   S.pts[w] += gain;
   S.played.push(a.c, b.c);
   S.won[w].push([a.c, b.c]);
+  if (w === YOU) earn(gain, '#myPile');
   S.table = [];
   S.turn = w;
   S.note = [w === YOU ? ['wonTrick', gain] : ['cpuWonTrick']];
@@ -1377,6 +1449,21 @@ let playerStats = loadStats();
 const JOKER_STREAK = 3, JOKER_MAX = 3;
 let rewards = { jokers: 0, streak: 0 };
 try { rewards = { ...rewards, ...JSON.parse(localStorage.getItem('snops-rewards')) }; } catch (e) {}
+
+/* Krajcarji: coins you earn and never lose. Harder modes pay more. */
+const COIN_MULT = { easy: 1, normal: 1, hard: 1.5, extreme: 2 };
+const PURSE_LEVELS = [0, 1000, 10000, 50000, 100000];
+let purse = { coins: 0 };
+try { purse = { ...purse, ...JSON.parse(localStorage.getItem('snops-purse')) }; } catch (e) {}
+let coinFrom = null;
+
+function earn(amount, from) {
+  purse.coins = Math.max(0, purse.coins + Math.round(amount * (COIN_MULT[mode] || 1)));
+  coinFrom = from;
+  try { localStorage.setItem('snops-purse', JSON.stringify(purse)); } catch (e) {}
+}
+
+const purseLevel = coins => PURSE_LEVELS.filter(t => coins >= t).length - 1;
 
 function saveRewards() {
   try { localStorage.setItem('snops-rewards', JSON.stringify(rewards)); } catch (e) {}
@@ -1466,6 +1553,7 @@ function recordAchievements(w, gp, matchOver) {
     for (const id of ids) {
       a.done[id] = Date.now();
       S.over.unlocked.push(id);
+      earn(50, '#over .gain');
       if (rewards.jokers < JOKER_MAX) {
         rewards.jokers++;
         a.jokersEarned++;
@@ -1498,8 +1586,12 @@ function recordResult(w, gp, why, matchOver) {
   else if (++rewards.streak >= JOKER_STREAK) {
     rewards.streak = 0;
     if (rewards.jokers < JOKER_MAX) { rewards.jokers++; S.over.joker = true; S.over.jokerStreak = true; }
+    earn(50, '#over .gain');
   }
   saveRewards();
+  if (w === YOU) {
+    earn(25 * gp + (S.closedBy === YOU ? 50 : 0) + (matchOver ? 150 : 0), '#over .gain');
+  }
   recordAchievements(w, gp, matchOver);
   if (matchOver) {
     s.matches[w]++;
@@ -2238,7 +2330,9 @@ function render() {
   renderScore();
   $('settingsBtn').innerHTML = `<span aria-hidden="true">⚙︎</span><span class="btn-label"> ${L().settings}</span>`;
   $('settingsBtn').setAttribute('aria-label', L().settings);
-  $('statsBtn').textContent = L().statsTitle;
+  $('statsBtn').innerHTML = `<span class="bars-icon" aria-hidden="true"></span><span class="btn-label">${L().statsTitle}</span>`;
+  $('statsBtn').setAttribute('aria-label', L().statsTitle);
+  renderPurse();
   const toNext = rewards.jokers < JOKER_MAX ? `<span class="joker-prog">${rewards.streak}/${JOKER_STREAK}</span>` : '';
   $('jokerBtn').innerHTML = `<span class="joker-icon" aria-hidden="true">★</span> ${rewards.jokers}${toNext}`;
   $('jokerBtn').setAttribute('aria-label', L().jokerBtn(rewards.jokers, rewards.streak));
@@ -2355,7 +2449,8 @@ function statsHtml() {
     [L().statMarriages, `${s.marriages20} / ${s.marriages40}`],
     [L().statCloses, `${s.closesWon} / ${s.closes}`],
     [L().statThrees, s.threes],
-    [L().statWrong, s.wrongClaims]
+    [L().statWrong, s.wrongClaims],
+    [L().statCoins, fmtCoins(purse.coins)]
   ];
   return `<div class="stat-tiles">
       ${statTile(L().statMatches, `${s.matches[YOU]}–${s.matches[CPU]}`, L().statWon(winPercent(s.matches)))}
@@ -2447,6 +2542,113 @@ function showNextUnlock() {
     setTimeout(() => toast.remove(), 400);
     showNextUnlock();
   }, 3200);
+}
+
+/* ---------- The purse: the number in the top bar counts up as coins fly into it ---------- */
+
+let shownCoins = purse.coins, coinsFlying = false;
+
+const fmtCoins = n => Math.round(n).toLocaleString(lang === 'st' ? 'sl-SI' : 'en-US');
+
+function renderPurse() {
+  const level = purseLevel(shownCoins);
+  $('purseBtn').innerHTML = `<span class="coin" aria-hidden="true"></span><span class="purse-num">${fmtCoins(shownCoins)}</span>`;
+  $('purseBtn').setAttribute('aria-label', L().purseAria(fmtCoins(purse.coins)));
+  $('purseBtn').setAttribute('data-level', level);
+  if (purse.coins !== shownCoins && !coinsFlying) settleCoins();
+}
+
+function settleCoins() {
+  const target = purse.coins, from = coinFrom;
+  coinFrom = null;
+  if (target < shownCoins || reducedMotion()) { shownCoins = target; renderPurse(); return; }
+  const source = from && document.querySelector(from);
+  const start = source ? source.getBoundingClientRect() : null;
+  const end = $('purseBtn').getBoundingClientRect();
+  const count = Math.min(10, Math.max(3, Math.round((target - shownCoins) / 8)));
+  coinsFlying = true;
+  const fly = [];
+  for (let i = 0; i < count; i++) {
+    const coin = document.createElement('span');
+    coin.className = 'coin flying';
+    document.body.append(coin);
+    const sx = start ? start.left + start.width / 2 + (Math.random() - .5) * start.width * .6 : innerWidth / 2;
+    const sy = start ? start.top + start.height / 2 + (Math.random() - .5) * start.height * .4 : innerHeight / 2;
+    const ex = end.left + 16, ey = end.top + end.height / 2;
+    const lift = 60 + Math.random() * 60;
+    fly.push(coin.animate([
+      { transform: `translate(${sx}px, ${sy}px) scale(.6)`, opacity: 0 },
+      { transform: `translate(${(sx + ex) / 2}px, ${Math.min(sy, ey) - lift}px) scale(1.15) rotate(180deg)`, opacity: 1, offset: .45 },
+      { transform: `translate(${ex}px, ${ey}px) scale(.7) rotate(360deg)`, opacity: 1 }
+    ], { duration: 700, delay: i * 70, easing: 'cubic-bezier(.4, 0, .6, 1)', fill: 'both' }).finished.then(() => coin.remove()));
+  }
+  const from0 = shownCoins, levelBefore = purseLevel(from0);
+  setTimeout(() => {
+    const t0 = performance.now(), span = 600;
+    const tick = now => {
+      const k = Math.min(1, (now - t0) / span);
+      shownCoins = from0 + (target - from0) * k;
+      $('purseBtn').querySelector('.purse-num').textContent = fmtCoins(shownCoins);
+      if (k < 1) { requestAnimationFrame(tick); return; }
+      shownCoins = target;
+      coinsFlying = false;
+      $('purseBtn').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 320 });
+      renderPurse();
+      if (purseLevel(target) > levelBefore) purseLevelUp(purseLevel(target));
+    };
+    requestAnimationFrame(tick);
+  }, 450);
+  Promise.all(fly).catch(() => {});
+}
+
+/* A rain of coins and a notice when the purse reaches its next size. */
+function purseLevelUp(level) {
+  for (let i = 0; i < 36; i++) {
+    const coin = document.createElement('span');
+    coin.className = 'coin rain';
+    coin.style.left = `${Math.random() * 100}vw`;
+    document.body.append(coin);
+    coin.animate([
+      { transform: `translateY(-40px) rotate(0deg)`, opacity: 1 },
+      { transform: `translateY(${innerHeight + 40}px) rotate(${360 + Math.random() * 540}deg)`, opacity: 1 }
+    ], { duration: 1400 + Math.random() * 1000, delay: Math.random() * 700, easing: 'cubic-bezier(.45, 0, .8, .6)', fill: 'both' })
+      .finished.then(() => coin.remove()).catch(() => coin.remove());
+  }
+  const toast = document.createElement('button');
+  toast.className = 'ach-toast purse-toast';
+  toast.setAttribute('role', 'status');
+  toast.innerHTML = `<span class="coin big" aria-hidden="true"></span>
+    <span class="ach-toast-text"><span class="ach-toast-kicker">${L().purseLevelUp}</span><span class="ach-toast-title">${L().purseLevels[level]}</span></span>`;
+  $('toasts').append(toast);
+  setTimeout(() => { toast.classList.add('leaving'); setTimeout(() => toast.remove(), 400); }, 3600);
+}
+
+function openPurse() {
+  settingsOpen = false;
+  confirmNewMatch = false;
+  renderSettings();
+  const level = purseLevel(purse.coins), next = PURSE_LEVELS[level + 1];
+  const base = PURSE_LEVELS[level];
+  const progress = next ? (purse.coins - base) / (next - base) * 100 : 100;
+  $('rulesView').innerHTML = `<div class="scrim" id="rulesScrim"><div class="result wide" role="dialog" aria-modal="true" aria-label="${L().purseTitle}">
+    <h2>${L().purseTitle}</h2>
+    <div class="purse-hero">
+      <span class="coin huge" aria-hidden="true"></span>
+      <div>
+        <div class="purse-total">${fmtCoins(purse.coins)} <span>${L().coins}</span></div>
+        <div class="purse-level">${L().purseLevels[level]}</div>
+      </div>
+    </div>
+    <div class="ach-summary">
+      <span>${next ? L().purseNext(fmtCoins(next - purse.coins), L().purseLevels[level + 1]) : L().purseTop}</span>
+      <span class="stat-bar"><span style="width: ${progress}%"></span></span>
+    </div>
+    <h3>${L().purseHow}</h3>
+    <dl class="stat-details">${L().purseRules.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+    <p class="stat-note">${L().purseNote}</p>
+    <button class="btn" data-act="closeRules" id="closeRules">${L().closeBtn}</button>
+  </div></div>`;
+  $('closeRules').focus({ preventScroll: true });
 }
 
 function pressResetStats() {
@@ -2627,6 +2829,8 @@ function useJoker() {
   saveStats();
   ach = JSON.parse(lastMove.ach);
   saveAch();
+  purse.coins = lastMove.coins;
+  earn(0, null);
   // Jokers earned in the hand being taken back go too, so a joker cannot pay for itself.
   rewards.jokers = lastMove.jokers - 1;
   rewards.streak = lastMove.streak;
@@ -2740,7 +2944,7 @@ function closeMarriageAsk() {
 function rememberMove(kind, card) {
   lastMove = {
     S: JSON.parse(JSON.stringify(S)), stats: JSON.stringify(playerStats), streak: rewards.streak, jokers: rewards.jokers,
-    ach: JSON.stringify(ach), what: [kind, card]
+    ach: JSON.stringify(ach), coins: purse.coins, what: [kind, card]
   };
 }
 
@@ -3082,6 +3286,7 @@ document.addEventListener('click', e => {
   if (e.target.id === 'resetStats') { pressResetStats(); return; }
   if (e.target.id === 'rulesScrim' || e.target.id === 'closeRules') { closeRules(); return; }
   if (e.target.closest('#statsBtn')) { openStats(); return; }
+  if (e.target.closest('#purseBtn')) { openPurse(); return; }
   if (e.target.closest('#achBtn') || e.target.closest('.ach-toast')) { openAchievements(); return; }
   if (e.target.closest('#settingsBtn')) { setSettingsOpen(!settingsOpen); return; }
   if (settingsOpen) {
