@@ -317,7 +317,8 @@ button.card.illegal { filter: brightness(.62); }
 .me-grid { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "hand hand" "info pile"; row-gap: 4px; }
 .me-grid .fan { grid-area: hand; }
 .me-grid .trick-pile { grid-area: pile; }
-.me-grid .score-tag { grid-area: info; justify-self: center; }
+.me-grid .me-info { grid-area: info; justify-self: center; display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; }
+.me-info .score-tag { min-width: 0; flex: 0 1 230px; }
 .score-tag {
   display: flex;
   align-items: center;
@@ -487,8 +488,28 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
   box-shadow: inset 0 0 0 .12em rgba(255, 240, 184, .55), inset 0 0 0 .22em rgba(143, 100, 8, .35), 0 1px 2px rgba(0, 0, 0, .35);
   vertical-align: -.2em;
 }
-.purse-btn { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
-.purse-btn[data-level="2"] .coin, .purse-btn[data-level="3"] .coin, .purse-btn[data-level="4"] .coin { box-shadow: inset 0 0 0 .12em rgba(255, 240, 184, .55), 0 0 8px rgba(255, 210, 90, .8); }
+.purse-tag {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 8px 10px;
+  background: var(--mat);
+  color: #38291c;
+  font-family: var(--hand);
+  border: 0;
+  border-radius: 8px;
+  outline: 2px solid rgba(156, 109, 18, .55);
+  outline-offset: -4px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .4);
+  transform: rotate(1.5deg);
+  cursor: pointer;
+}
+.purse-tag .coin { width: 1.9rem; height: 1.9rem; }
+.purse-body { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
+.purse-tag .purse-num { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.purse-name { font-size: .8125rem; color: #7a5a1c; white-space: nowrap; }
+.purse-tag[data-level="2"] .coin, .purse-tag[data-level="3"] .coin, .purse-tag[data-level="4"] .coin { box-shadow: inset 0 0 0 .12em rgba(255, 240, 184, .55), 0 0 8px rgba(255, 210, 90, .8); }
 .purse-num { font-weight: 700; }
 .coin.flying, .coin.rain { position: fixed; left: 0; top: 0; z-index: 80; width: 20px; height: 20px; margin: -10px 0 0 -10px; pointer-events: none; }
 .coin.rain { width: 26px; height: 26px; top: 0; margin: 0; }
@@ -498,7 +519,6 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 .purse-total { font: 400 2.25rem/1 var(--display); font-variant-numeric: tabular-nums; }
 .purse-total span { font: 600 1rem var(--body); }
 .purse-level { margin-top: 4px; font-weight: 700; color: #9c6d12; }
-.bars-icon { display: none; width: 14px; height: 13px; background: linear-gradient(currentColor, currentColor) 0 100% / 3px 6px no-repeat, linear-gradient(currentColor, currentColor) 5px 100% / 3px 13px no-repeat, linear-gradient(currentColor, currentColor) 10px 100% / 3px 9px no-repeat; }
 .header-right { display: flex; gap: 8px; }
 .joker-prog { font-size: .75rem; font-weight: 600; opacity: .8; margin-left: 2px; }
 .medal {
@@ -572,10 +592,16 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 @media (max-width: 520px) {
   header { gap: 6px; }
   .header-right { gap: 6px; }
-  #achBtn .btn-label, #settingsBtn .btn-label, #statsBtn .btn-label, #achBtn .ach-btn-count { display: none; }
+  #achBtn .btn-label, #settingsBtn .btn-label { display: none; }
+  .purse-name { display: none; }
+  .purse-tag { padding: 6px 9px 7px 7px; gap: 5px; }
+  .purse-tag .coin { width: 1.3rem; height: 1.3rem; }
+  .purse-tag .purse-num { font-size: 1.125rem; }
+  .me-info { gap: 8px; }
+  .me-info .score-tag { padding: 6px 10px 7px; gap: 8px; }
+  .me-info .score-top { flex-wrap: wrap; gap: 0 8px; font-size: .875rem; }
   .header-mid { gap: 6px; }
   .joker-prog { display: none; }
-  #statsBtn .bars-icon { display: inline-block; }
 }
 .joker-btn { font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 6px; }
 .joker-icon {
@@ -712,7 +738,6 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
     <button class="btn settings-btn" id="settingsBtn" aria-expanded="false" aria-controls="settingsPanel"></button>
     <div class="header-mid">
       <button class="btn settings-btn joker-btn" id="jokerBtn" data-act="joker"></button>
-      <button class="btn settings-btn purse-btn" id="purseBtn"></button>
     </div>
     <div class="header-right">
       <button class="btn settings-btn" id="achBtn"></button>
@@ -742,6 +767,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
     <div class="me-grid">
       <div class="fan hand" id="hand"></div>
       <button class="trick-pile" id="myPile" data-act="tricks" title="See your tricks"></button>
+      <div class="me-info">
       <div class="score-tag" id="meInfo" role="status">
         <span class="score-num" id="scoreNum"></span>
         <div class="score-body">
@@ -749,6 +775,8 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
           <div class="score-bar" id="scoreBar"><span class="score-fill" id="scoreFill"></span><span class="score-mark"></span></div>
           <div class="score-pending" id="scorePending" hidden></div>
         </div>
+      </div>
+      <button class="purse-tag" id="purseBtn"></button>
       </div>
     </div>
   </section>
@@ -2330,8 +2358,7 @@ function render() {
   renderScore();
   $('settingsBtn').innerHTML = `<span aria-hidden="true">⚙︎</span><span class="btn-label"> ${L().settings}</span>`;
   $('settingsBtn').setAttribute('aria-label', L().settings);
-  $('statsBtn').innerHTML = `<span class="bars-icon" aria-hidden="true"></span><span class="btn-label">${L().statsTitle}</span>`;
-  $('statsBtn').setAttribute('aria-label', L().statsTitle);
+  $('statsBtn').textContent = L().statsTitle;
   renderPurse();
   const toNext = rewards.jokers < JOKER_MAX ? `<span class="joker-prog">${rewards.streak}/${JOKER_STREAK}</span>` : '';
   $('jokerBtn').innerHTML = `<span class="joker-icon" aria-hidden="true">★</span> ${rewards.jokers}${toNext}`;
@@ -2552,7 +2579,7 @@ const fmtCoins = n => Math.round(n).toLocaleString(lang === 'st' ? 'sl-SI' : 'en
 
 function renderPurse() {
   const level = purseLevel(shownCoins);
-  $('purseBtn').innerHTML = `<span class="coin" aria-hidden="true"></span><span class="purse-num">${fmtCoins(shownCoins)}</span>`;
+  $('purseBtn').innerHTML = `<span class="coin" aria-hidden="true"></span><span class="purse-body"><span class="purse-num">${fmtCoins(shownCoins)}</span><span class="purse-name">${L().purseLevels[level]}</span></span>`;
   $('purseBtn').setAttribute('aria-label', L().purseAria(fmtCoins(purse.coins)));
   $('purseBtn').setAttribute('data-level', level);
   if (purse.coins !== shownCoins && !coinsFlying) settleCoins();
