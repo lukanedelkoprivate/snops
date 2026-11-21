@@ -475,6 +475,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .result .btn.ghost { background: transparent; color: var(--ink); border-color: var(--ink-soft); font-size: .875rem; padding: 4px 10px; min-height: 36px; align-self: auto; }
 .result .btn.ghost:hover:not(:disabled) { background: var(--mat); color: var(--ink); }
+.confirm-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .result .btn.ghost[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .log li { display: grid; grid-template-columns: 5.2em minmax(0, 1fr); gap: 8px; padding: 7px 0; border-top: 1px solid rgba(36, 26, 23, .15); font-size: .9375rem; line-height: 1.4; }
@@ -530,6 +531,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 </div>
 <div id="announce"></div>
 <div id="over"></div>
+<div id="confirm"></div>
 <div id="tricksView"></div>
 <div id="spread"></div>
 <div id="rulesView"></div>
@@ -706,6 +708,10 @@ const STRINGS = {
     yourLead: 'Your lead.',
     declareBtn: (v, g) => `Declare ${v} in ${g}`,
     cancelBtn: (v, g) => `Cancel ${v} in ${g}`,
+    marryTitle: (v, g) => `Don't forget your ${v} ${g}`,
+    marryText: (c, v) => `If you play the ${EN_RANK[rank(c)] + GLYPH[suit(c)]} without declaring, you lose the ${v}.`,
+    marrySay: (v, g) => `Declare ${v} ${g} and play`,
+    marrySkip: 'Play without it',
     swapBtn: c => `Swap jack for ${short(c)}`,
     closeStockBtn: 'Close stock',
     claimBtn: 'Claim 66',
@@ -848,6 +854,10 @@ const STRINGS = {
     yourLead: 'Ti si.',
     declareBtn: (v, g) => `Maš ${v} ${g}`,
     cancelBtn: (v, g) => `Prekliči ${v} ${g}`,
+    marryTitle: (v, g) => `Ne pozabi na ${v} ${g}!`,
+    marryText: (c, v) => `Če vržeš ${stAcc(c)} in ne rečeš ${v}, jih zgubiš.`,
+    marrySay: (v, g) => `Maš ${v} ${g}`,
+    marrySkip: 'Vrži brez',
     swapBtn: c => `Zamenjaj pubeca za ${stAcc(c)}`,
     closeStockBtn: 'Zapri',
     claimBtn: 'Mam 66',
@@ -2099,6 +2109,45 @@ function closeSpread() {
 
 /* The review panel on the end-of-hand screen. */
 let view = null;
+let marriageAsk = null;
+
+/* Leading a king or queen while its partner is in hand and the marriage has not been declared. */
+const forgetsMarriage = c => onLead(YOU) && !S.declared && (rank(c) === 'K' || rank(c) === 'Q') && marriages(YOU).includes(suit(c));
+
+function askMarriage(card) {
+  marriageAsk = card;
+  const s = suit(card), v = marriageValue(s), g = GLYPH[s];
+  $('confirm').innerHTML = `<div class="scrim"><div class="result" role="alertdialog" aria-modal="true" aria-labelledby="marryTitle" aria-describedby="marryText">
+    <h2 id="marryTitle">${L().marryTitle(v, g)}</h2>
+    <p id="marryText">${L().marryText(card, v)}</p>
+    <div class="confirm-acts">
+      <button class="btn" data-act="marrySay">${L().marrySay(v, g)}</button>
+      <button class="btn ghost" data-act="marrySkip">${L().marrySkip}</button>
+    </div>
+  </div></div>`;
+  $('confirm').querySelector('[data-act="marrySay"]').focus();
+}
+
+function closeMarriageAsk() {
+  const card = marriageAsk;
+  marriageAsk = null;
+  $('confirm').innerHTML = '';
+  return card;
+}
+
+function playYourCard(card) {
+  S.note = [];
+  S.newCard = null;
+  S.marriageAlert = false;
+  playCard(YOU, card);
+}
+
+function declareYours(s) {
+  S.noteBeforeDeclare = S.note;
+  declare(YOU, s);
+  S.note = [['declared', YOU, marriageValue(s), GLYPH[s]]];
+  speak('youMarriage', 0.6);
+}
 let viewShown = null;
 
 function tricksHtml(p) {
@@ -2396,6 +2445,7 @@ function endVictory() {
 document.addEventListener('keydown', e => {
   if (victory && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); endVictory(); return; }
   if (e.key === 'Escape' && $('closeRules')) { closeRules(); return; }
+  if (e.key === 'Escape' && marriageAsk) { closeMarriageAsk(); return; }
   if (e.key === 'Escape' && view) setView(null);
   if (e.key === 'Escape' && spreadOpen) closeSpread();
   if (e.key === 'Escape' && settingsOpen) setSettingsOpen(false);
@@ -2425,6 +2475,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('#spreadBox')) { closeSpread(); return; }
   if (e.target.id === 'tricksScrim') { setView(null); return; }
   if (S.announce && e.target.closest('#announceBox')) { cpuMove(); return; }
+  if (marriageAsk && e.target.classList.contains('scrim')) { closeMarriageAsk(); return; }
   const b = e.target.closest('[data-act],[data-card]');
   if (!b || b.disabled) return;
   // Looking at tricks never touches the game, so the computer's pending move keeps its timing.
@@ -2435,10 +2486,8 @@ document.addEventListener('click', e => {
   const card = b.dataset.card;
   if (card) {
     if (S.turn === YOU && S.table.length < 2 && legal(YOU).includes(card)) {
-      S.note = [];
-      S.newCard = null;
-      S.marriageAlert = false;
-      playCard(YOU, card);
+      if (forgetsMarriage(card)) { askMarriage(card); return; }
+      playYourCard(card);
     }
   } else {
     const act = b.dataset.act;
@@ -2455,10 +2504,17 @@ document.addEventListener('click', e => {
       S.note = [['closed', YOU]];
       speak('youClose');
     } else if (act === 'declare') {
-      S.noteBeforeDeclare = S.note;
-      declare(YOU, b.dataset.suit);
-      S.note = [['declared', YOU, marriageValue(b.dataset.suit), GLYPH[b.dataset.suit]]];
-      speak('youMarriage', 0.6);
+      declareYours(b.dataset.suit);
+    } else if (act === 'marrySay' && marriageAsk) {
+      const c = closeMarriageAsk();
+      if (forgetsMarriage(c)) {
+        declareYours(suit(c));
+        // With 66 reached, leave the card in hand so the hand can be claimed first.
+        if (!(S.tricks[YOU] && S.pts[YOU] >= 66)) playYourCard(c);
+      }
+    } else if (act === 'marrySkip' && marriageAsk) {
+      const c = closeMarriageAsk();
+      if (onLead(YOU) && legal(YOU).includes(c)) playYourCard(c);
     } else if (act === 'undeclare' && S.declared && onLead(YOU)) {
       cancelDeclare(YOU);
       S.note = S.noteBeforeDeclare || [];
