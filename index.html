@@ -538,6 +538,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 .ach-toast .medal { animation: medal-spin .9s .15s ease-out both; }
 .ach-toast.leaving { animation: toast-out .4s ease-in forwards; }
 .ach-toast-text { display: flex; flex-direction: column; }
+.ach-toast-joker { display: inline-flex; align-items: center; gap: 5px; margin-left: 4px; padding: 3px 9px; font-size: .8125rem; font-weight: 700; white-space: nowrap; color: #6b4a08; background: rgba(226, 171, 47, .25); border-radius: 20px; }
 .ach-toast-kicker { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #9c6d12; }
 .ach-toast-title { font: 400 1.25rem/1.15 var(--display); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-40px) scale(.8); } }
@@ -664,6 +665,7 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
 .joker-text { position: relative; text-align: center; color: var(--paper); opacity: 0; transform: translateY(10px); transition: opacity .5s, transform .5s; padding: 0 16px; }
 .joker-fx.landed .joker-text { opacity: 1; transform: none; }
 .joker-title { font: 400 clamp(1.75rem, 6vw, 2.5rem)/1.1 var(--display); color: #ffd766; text-shadow: 0 2px 8px rgba(0, 0, 0, .6); }
+.joker-why { margin-top: 10px; font-weight: 700; color: #ffd766; max-width: 34ch; margin-inline: auto; }
 .joker-sub { margin-top: 8px; font-size: 1rem; max-width: 30ch; margin-inline: auto; }
 .result .btn.ghost[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -874,7 +876,7 @@ const STRINGS = {
       ['Match', 'The first player to 7 game points wins.'],
       ['Your tricks', 'Press your trick pile to see the cards in it, except in Hard mode. At a real table you usually cannot look back. Your trumps have a gold edge.'],
       ['Modes', 'Easy shows both players\' points and lets you open both trick piles. Normal shows your points and your opponent\'s 20s and 40s. Hard shows no points, trick counts or marks. Extreme shows the same as Normal and adds a much stronger opponent, who sees only what a player at the table can see. Everything is revealed when the hand ends.'],
-      ['Jokers', 'Win three hands in a row to earn a joker. You can hold up to 3. A joker takes back your last card, even when that card lost you the hand. The computer gets no jokers.']
+      ['Jokers', 'Win three hands in a row, or unlock an achievement, to earn a joker. You can hold up to 3. A joker takes back your last card, even when that card lost you the hand. The computer gets no jokers.']
     ],
     bg: { red: 'Red check', green: 'Green felt', blue: 'Blue check', wood: 'Dark wood' },
     oppInfo: n => `${enName()}: ${n} ${n === 1 ? 'trick' : 'tricks'}`,
@@ -911,7 +913,8 @@ const STRINGS = {
     achTitle: 'Achievements',
     achSummary: (n, t) => `${n} of ${t} unlocked`,
     achNew: 'Achievement unlocked',
-    achNote: 'Achievements stay when you reset the statistics.',
+    achNote: 'Each new achievement also earns a joker, if you have fewer than 3. Achievements stay when you reset the statistics.',
+    achJoker: '+1 joker',
     get ach() {
       const names = [L().cpuDefault, ...Object.values(CPU_NAMES).map(n => n[0])];
       return {
@@ -938,8 +941,9 @@ const STRINGS = {
       };
     },
     jokerName: 'Joker',
-    jokerWon: 'You won a joker!',
-    jokerWonSub: 'Three hands in a row. Use it to take back your last card.',
+    jokerWon: n => n === 1 ? 'You won a joker!' : `You won ${n} jokers!`,
+    jokerWhy: (streak, achs) => [streak ? 'Three hands in a row' : '', ...achs.map(t => `Achievement: ${t}`)].filter(Boolean).join(' · ') + '.',
+    jokerWonSub: 'Use it to take back your last card.',
     jokerToGo: k => `${k} more ${k === 1 ? 'hand' : 'hands'} in a row for a joker.`,
     jokerUse: 'Use a joker',
     jokerAskTitle: 'Use a joker?',
@@ -1060,7 +1064,7 @@ const STRINGS = {
       ['Igra', 'Zmaga, kdor prvi pride do 7 za igro.'],
       ['Tvoji štihi', 'Pritisni svoj kup štihov in vidiš vse karte v njem, razen pri Težko. Tvoji aduti majo zlat rob.'],
       ['Težavnost', 'Lahko kaže točke obeh in lahko odpreš oba kupa štihov. Normalno kaže tvoje točke in nasprotnikove 20 in 40. Težko ne kaže točk, števila štihov in oznak. Ekstremno kaže isto kot Normalno, nasprotnik pa je dosti močnejši in vidi samo to, kar vidi igralec za mizo. Na koncu partije se vidi vse.'],
-      ['Džoker', 'Za tri zmagane partije zapored dobiš džokerja. Največ jih lahko maš 3. Z njim vzameš nazaj svojo zadnjo karto, tudi če si zaradi nje zgubo partijo. Računalnik nima džokerjev.']
+      ['Džoker', 'Za tri zmagane partije zapored ali za nov dosežek dobiš džokerja. Največ jih lahko maš 3. Z njim vzameš nazaj svojo zadnjo karto, tudi če si zaradi nje zgubo partijo. Računalnik nima džokerjev.']
     ],
     bg: { red: 'Rdeč karo', green: 'Zeleno sukno', blue: 'Moder karo', wood: 'Temen les' },
     oppInfo: n => `${stName()}: ${stStihi(n)}`,
@@ -1097,7 +1101,8 @@ const STRINGS = {
     achTitle: 'Dosežki',
     achSummary: (n, t) => `Odklenjenih ${n} od ${t}`,
     achNew: 'Nov dosežek!',
-    achNote: 'Dosežki ostanejo, tudi če zbrišeš statistiko.',
+    achNote: 'Za vsak nov dosežek dobiš tudi džokerja, če jih maš manj kot 3. Dosežki ostanejo, tudi če zbrišeš statistiko.',
+    achJoker: '+1 džoker',
     get ach() {
       const names = [L().cpuDefault, ...Object.values(CPU_NAMES).map(n => n[0])];
       return {
@@ -1124,8 +1129,9 @@ const STRINGS = {
       };
     },
     jokerName: 'Džoker',
-    get jokerWon() { return `${stG('Dobil', 'Dobila')} si džokerja!`; },
-    jokerWonSub: 'Tri partije zapored. Z njim lahko vzameš nazaj zadnjo karto.',
+    jokerWon: n => `${stG('Dobil', 'Dobila')} si ${['', 'džokerja', 'dva džokerja', 'tri džokerje'][n]}!`,
+    jokerWhy: (streak, achs) => [streak ? 'Tri partije zapored' : '', ...achs.map(t => `Dosežek: ${t}`)].filter(Boolean).join(' · ') + '.',
+    jokerWonSub: 'Z njim lahko vzameš nazaj zadnjo karto.',
     jokerToGo: k => k === 1 ? 'Še ena partija zapored do džokerja.' : 'Še dve partiji zapored do džokerja.',
     jokerUse: 'Porabi džokerja',
     jokerAskTitle: 'Porabiš džokerja?',
@@ -1423,7 +1429,7 @@ function recordAchievements(w, gp, matchOver) {
     if (gp === 3) a.threes++;
     if (S.closedBy === YOU) a.closesWon++;
   }
-  if (S.over.joker) a.jokersEarned++;
+  if (S.over.jokerStreak) a.jokersEarned++;
   if (matchOver && won) {
     a.matchesWon++;
     if (!S.gp[CPU]) a.shutouts++;
@@ -1433,8 +1439,22 @@ function recordAchievements(w, gp, matchOver) {
     const name = CPU_NAMES[cpuName] ? cpuName : 'default';
     if (!a.beaten.includes(name)) a.beaten.push(name);
   }
-  S.over.unlocked = newlyDone(a);
-  for (const id of S.over.unlocked) a.done[id] = Date.now();
+  // Each new achievement earns a joker, and earning one can unlock "Joker in your pocket" in turn.
+  S.over.unlocked = [];
+  S.over.achJokers = [];
+  for (let ids = newlyDone(a); ids.length; ids = newlyDone(a)) {
+    for (const id of ids) {
+      a.done[id] = Date.now();
+      S.over.unlocked.push(id);
+      if (rewards.jokers < JOKER_MAX) {
+        rewards.jokers++;
+        a.jokersEarned++;
+        S.over.achJokers.push(id);
+        S.over.joker = true;
+      }
+    }
+  }
+  saveRewards();
   saveAch();
 }
 
@@ -1457,7 +1477,7 @@ function recordResult(w, gp, why, matchOver) {
   if (w !== YOU) rewards.streak = 0;
   else if (++rewards.streak >= JOKER_STREAK) {
     rewards.streak = 0;
-    if (rewards.jokers < JOKER_MAX) { rewards.jokers++; S.over.joker = true; }
+    if (rewards.jokers < JOKER_MAX) { rewards.jokers++; S.over.joker = true; S.over.jokerStreak = true; }
   }
   saveRewards();
   recordAchievements(w, gp, matchOver);
@@ -2394,12 +2414,13 @@ function queueUnlocks(ids) {
 function showNextUnlock() {
   if (!unlockQueue.length) return;
   if (victory || jokerFx || jokerWaiting) { setTimeout(showNextUnlock, 700); return; }
-  const id = unlockQueue.shift();
+  const [id, withJoker] = unlockQueue.shift();
   const toast = document.createElement('button');
   toast.className = 'ach-toast';
   toast.setAttribute('role', 'status');
   toast.innerHTML = `<span class="medal" aria-hidden="true">★</span>
-    <span class="ach-toast-text"><span class="ach-toast-kicker">${L().achNew}</span><span class="ach-toast-title">${L().ach[id][0]}</span></span>`;
+    <span class="ach-toast-text"><span class="ach-toast-kicker">${L().achNew}</span><span class="ach-toast-title">${L().ach[id][0]}</span></span>
+    ${withJoker ? `<span class="ach-toast-joker"><span class="joker-icon" aria-hidden="true">★</span> ${L().achJoker}</span>` : ''}`;
   $('toasts').append(toast);
   setTimeout(() => {
     toast.classList.add('leaving');
@@ -2555,7 +2576,7 @@ let marriageAsk = null;
 let lastMove = null, jokerAsking = false;
 
 /* A joker takes back your last card in this hand. A hand you won has nothing to take back. */
-const canUndo = () => !!lastMove && rewards.jokers > 0 && !(S.over && S.over.w === YOU)
+const canUndo = () => !!lastMove && lastMove.jokers > 0 && !(S.over && S.over.w === YOU)
   && JSON.stringify(lastMove.S.log[0]) === JSON.stringify(S.log[0]);
 
 function askJoker() {
@@ -2586,7 +2607,8 @@ function useJoker() {
   saveStats();
   ach = JSON.parse(lastMove.ach);
   saveAch();
-  rewards.jokers--;
+  // Jokers earned in the hand being taken back go too, so a joker cannot pay for itself.
+  rewards.jokers = lastMove.jokers - 1;
   rewards.streak = lastMove.streak;
   saveRewards();
   lastMove = null;
@@ -2606,6 +2628,7 @@ let jokerFx = null, jokerWaiting = false;
 
 function playJokerFx() {
   jokerWaiting = false;
+  const gained = S.over ? (S.over.jokerStreak ? 1 : 0) + (S.over.achJokers || []).length || 1 : 1;
   render();
   const target = $('jokerBtn');
   if (reducedMotion()) { target.animate([{ opacity: .2 }, { opacity: 1 }], { duration: 600 }); return; }
@@ -2628,7 +2651,8 @@ function playJokerFx() {
       <div class="joker-sparks">${sparks}</div>
     </div>
     <div class="joker-text">
-      <div class="joker-title">${L().jokerWon}</div>
+      <div class="joker-title">${L().jokerWon(gained)}</div>
+      <div class="joker-why">${L().jokerWhy(S.over && S.over.jokerStreak, (S.over && S.over.achJokers || []).map(id => L().ach[id][0]))}</div>
       <div class="joker-sub">${L().jokerWonSub}</div>
     </div>`;
   document.body.append(box);
@@ -2693,7 +2717,7 @@ function closeMarriageAsk() {
 }
 
 function playYourCard(card) {
-  lastMove = { S: JSON.parse(JSON.stringify(S)), stats: JSON.stringify(playerStats), streak: rewards.streak, ach: JSON.stringify(ach) };
+  lastMove = { S: JSON.parse(JSON.stringify(S)), stats: JSON.stringify(playerStats), streak: rewards.streak, jokers: rewards.jokers, ach: JSON.stringify(ach) };
   S.note = [];
   S.newCard = null;
   S.marriageAlert = false;
@@ -2783,7 +2807,7 @@ function renderOver() {
     <p>${entriesText(why)}</p>
     ${lang === 'st' ? `<p class="result-quip">${stName()}: „${STRINGS.st.quips[moment][S.over.quip]}“</p>` : ''}
     <p class="gain">${L().gain(w, gp)}</p>
-    ${w === YOU && !S.over.joker && rewards.streak && rewards.jokers < JOKER_MAX ? `<p class="joker-progress"><span class="joker-icon" aria-hidden="true">★</span> ${L().jokerToGo(JOKER_STREAK - rewards.streak)}</p>` : ''}
+    ${w === YOU && !S.over.jokerStreak && rewards.streak && rewards.jokers < JOKER_MAX ? `<p class="joker-progress"><span class="joker-icon" aria-hidden="true">★</span> ${L().jokerToGo(JOKER_STREAK - rewards.streak)}</p>` : ''}
     ${canUndo() ? `<button class="btn ghost joker-use" data-act="joker"><span class="joker-icon" aria-hidden="true">★</span> ${L().jokerUse}</button>` : ''}
     <div class="tally">
       <span>${L().tallyYou}</span><span>${S.pts[YOU]}</span>
@@ -2803,7 +2827,7 @@ function renderOver() {
   }
   if (S.over.unlocked && S.over.unlocked.length && !S.over.achShown) {
     S.over.achShown = true;
-    queueUnlocks(S.over.unlocked);
+    queueUnlocks(S.over.unlocked.map(id => [id, (S.over.achJokers || []).includes(id)]));
   }
   if (S.over.joker && !S.over.jokerShown) {
     S.over.jokerShown = true;
