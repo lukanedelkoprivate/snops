@@ -314,11 +314,11 @@ button.card.illegal { filter: brightness(.62); }
 .opp-grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
 .opp-grid .fan { grid-column: 2; }
 .opp-grid .trick-pile { grid-column: 3; }
-.me-grid { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "hand hand" "info pile"; row-gap: 4px; }
+.me-grid { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "hand hand hand" "purse info pile"; row-gap: 12px; }
 .me-grid .fan { grid-area: hand; }
 .me-grid .trick-pile { grid-area: pile; }
-.me-grid .me-info { grid-area: info; justify-self: center; display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 100%; }
-.me-info .score-tag { min-width: 0; flex: 0 1 230px; }
+.me-grid .score-tag { grid-area: info; justify-self: center; min-width: 0; width: min(230px, 100%); }
+.me-grid .purse-tag { grid-area: purse; justify-self: start; }
 .score-tag {
   display: flex;
   align-items: center;
@@ -401,7 +401,8 @@ button.card.illegal { filter: brightness(.62); }
   transform: rotate(.8deg);
 }
 @media (min-width: 880px) {
-  .me-grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: ". hand pile" ". info ."; }
+  .me-grid { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "purse hand pile" ". info ."; }
+  .me-grid .purse-tag { justify-self: end; align-self: end; margin-right: 8px; }
 }
 
 .trick-pile {
@@ -597,9 +598,8 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
   .purse-tag { padding: 6px 9px 7px 7px; gap: 5px; }
   .purse-tag .coin { width: 1.3rem; height: 1.3rem; }
   .purse-tag .purse-num { font-size: 1.125rem; }
-  .me-info { gap: 8px; }
-  .me-info .score-tag { padding: 6px 10px 7px; gap: 8px; }
-  .me-info .score-top { flex-wrap: wrap; gap: 0 8px; font-size: .875rem; }
+  .me-grid .score-tag { padding: 6px 10px 7px; gap: 8px; }
+  .me-grid .score-top { flex-wrap: wrap; gap: 0 8px; font-size: .875rem; }
   .header-mid { gap: 6px; }
   .joker-prog { display: none; }
 }
@@ -767,7 +767,6 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
     <div class="me-grid">
       <div class="fan hand" id="hand"></div>
       <button class="trick-pile" id="myPile" data-act="tricks" title="See your tricks"></button>
-      <div class="me-info">
       <div class="score-tag" id="meInfo" role="status">
         <span class="score-num" id="scoreNum"></span>
         <div class="score-body">
@@ -777,7 +776,6 @@ button.trick-pile:not(:disabled) { cursor: pointer; }
         </div>
       </div>
       <button class="purse-tag" id="purseBtn"></button>
-      </div>
     </div>
   </section>
 </div>
